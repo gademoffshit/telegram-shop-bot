@@ -354,25 +354,31 @@
         // Отображение товаров
         async function displayProducts() {
             const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            
             const products = await getProducts();
             
-            productsList.innerHTML = products.map((product, index) => `
-                <div class="product-card">
-                    <img src="${product.image}" 
-                         alt="${product.name}" 
-                         class="product-image" 
-                         onerror="this.src='images/placeholder.svg'">
-                    <div class="product-info">
-                        <h3>${product.name}</h3>
-                        <p>Цена: ${product.price} zł</p>
-                        <p>Категория: ${product.category}</p>
-                        <div class="product-actions">
-                            <button onclick="editProduct(${index})" class="edit-btn">Редактировать</button>
-                            <button onclick="deleteProduct(${index})" class="delete-btn">Удалить</button>
-                        </div>
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                // Декодируем текст из UTF-8
+                const name = decodeURIComponent(escape(product.name));
+                const category = decodeURIComponent(escape(product.category));
+                
+                productCard.innerHTML = `
+                    <img src="${product.image || 'images/placeholder.svg'}" alt="${name}" onerror="this.src='images/placeholder.svg'">
+                    <h3>${name}</h3>
+                    <p>Цена: ${product.price} zł</p>
+                    <p>Категория: ${category}</p>
+                    <div class="product-actions">
+                        <button class="edit-btn" onclick="editProduct(${product.id})">Редактировать</button>
+                        <button class="delete-btn" onclick="deleteProduct(${product.id})">Удалить</button>
                     </div>
-                </div>
-            `).join('');
+                `;
+                
+                productsList.appendChild(productCard);
+            });
         }
 
         // Валидация формы
@@ -420,9 +426,9 @@
             
             const product = {
                 id: productId ? parseInt(productId) : Math.max(0, ...products.map(p => p.id)) + 1,
-                name: document.getElementById('name').value.trim(),
+                name: encodeURIComponent(unescape(document.getElementById('name').value.trim())),
                 price: parseFloat(document.getElementById('price').value),
-                category: document.getElementById('category').value,
+                category: encodeURIComponent(unescape(document.getElementById('category').value)),
                 image: document.getElementById('image').value.trim(),
                 popularity: productId ? (products.find(p => p.id === parseInt(productId))?.popularity || 0) : 0
             };
@@ -449,9 +455,9 @@
             const product = products[index];
             
             document.getElementById('productId').value = product.id;
-            document.getElementById('name').value = product.name;
+            document.getElementById('name').value = decodeURIComponent(escape(product.name));
             document.getElementById('price').value = product.price;
-            document.getElementById('category').value = product.category;
+            document.getElementById('category').value = decodeURIComponent(escape(product.category));
             document.getElementById('image').value = product.image;
         }
 
