@@ -397,21 +397,21 @@
                 return;
             }
 
+            const products = await getProducts();
             const productId = document.getElementById('productId').value;
+            
             const product = {
-                id: productId || Date.now(),
+                id: productId ? parseInt(productId) : Math.max(0, ...products.map(p => p.id)) + 1,
                 name: document.getElementById('name').value.trim(),
                 price: parseFloat(document.getElementById('price').value),
                 category: document.getElementById('category').value,
                 image: document.getElementById('image').value.trim(),
-                popularity: 0
+                popularity: productId ? (products.find(p => p.id === parseInt(productId))?.popularity || 0) : 0
             };
 
-            const products = await getProducts();
-            
             if (productId) {
                 // Редактирование
-                const index = products.findIndex(p => p.id.toString() === productId);
+                const index = products.findIndex(p => p.id === parseInt(productId));
                 if (index !== -1) {
                     products[index] = product;
                 }
@@ -421,8 +421,7 @@
             }
 
             await saveProducts(products);
-            await displayProducts();
-            e.target.reset();
+            document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
         });
 
