@@ -92,6 +92,13 @@
             object-fit: cover;
             border-radius: 4px;
             margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .product-image[src$="placeholder.svg"] {
+            object-fit: contain;
+            padding: 20px;
+            background-color: #2c2c2c;
         }
 
         .product-info h3 {
@@ -269,6 +276,16 @@
             }
         }
 
+        // Проверка доступности изображения
+        async function checkImageUrl(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
         // Отображение товаров
         async function displayProducts() {
             const productsList = document.getElementById('productsList');
@@ -276,7 +293,10 @@
             
             productsList.innerHTML = products.map((product, index) => `
                 <div class="product-card">
-                    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/200x200?text=Image+Not+Found'">
+                    <img src="${product.image}" 
+                         alt="${product.name}" 
+                         class="product-image" 
+                         onerror="this.src='images/placeholder.svg'">
                     <div class="product-info">
                         <h3>${product.name}</h3>
                         <p>Цена: ${product.price} zł</p>
@@ -291,7 +311,7 @@
         }
 
         // Валидация формы
-        function validateForm() {
+        async function validateForm() {
             const name = document.getElementById('name').value;
             const price = document.getElementById('price').value;
             const image = document.getElementById('image').value;
@@ -311,6 +331,14 @@
                 return false;
             }
 
+            // Проверяем доступность изображения
+            const imageExists = await checkImageUrl(image);
+            if (!imageExists) {
+                if (!confirm('Не удалось проверить доступность изображения. Продолжить сохранение?')) {
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -318,7 +346,7 @@
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if (!validateForm()) {
+            if (!await validateForm()) {
                 return;
             }
 
