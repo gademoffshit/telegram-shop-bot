@@ -1,3 +1,12 @@
 {
-  "products": []
+  "products": [
+    {
+      "id": 1,
+      "name": "член мой",
+      "price": 11111,
+      "category": "Рудина",
+      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
+      "popularity": 0
+    }
+  ]
 }
