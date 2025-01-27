@@ -1,12 +1,3 @@
 {
-  "products": [
-    {
-      "id": 2,
-      "name": "gademoff",
-      "price": 1000,
-      "category": "ÐÐ´Ð½Ð¾ÑÐ°Ð·ÐºÐ¸",
-      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
-      "popularity": 0
-    }
-  ]
+  "products": []
 }
