@@ -5,23 +5,14 @@ tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#8774e1';
 
-// GitHub API конфигурация
-const REPO_OWNER = 'gademoffshit';
-const REPO_NAME = 'telegram-shop-bot';
-const FILE_PATH = 'products.json';
-
 // Загрузка товаров с GitHub
 async function getProducts() {
     try {
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch products');
-        }
-
-        const file = await response.json();
-        const content = JSON.parse(atob(file.content));
-        return content.products;
+        // Добавляем timestamp для предотвращения кэширования
+        const timestamp = new Date().getTime();
+        const response = await fetch(`https://raw.githubusercontent.com/gademoffshit/telegram-shop-bot/main/products.json?t=${timestamp}`);
+        const data = await response.json();
+        return data.products;
     } catch (error) {
         console.error('Error loading products:', error);
         return [];
@@ -35,8 +26,8 @@ async function loadProducts() {
     filterAndDisplayProducts();
 }
 
-// Обновляем товары каждые 10 секунд
-setInterval(loadProducts, 10000);
+// Обновляем товары каждые 30 секунд
+setInterval(loadProducts, 30000);
 
 // Инициализация
 loadProducts();
@@ -101,56 +92,49 @@ sortSelect.addEventListener('change', (e) => {
 
 // Фильтрация и отображение товаров
 function filterAndDisplayProducts() {
-    const searchQuery = document.querySelector('input[type="search"]').value.toLowerCase();
-    const selectedCategory = document.querySelector('.active')?.textContent?.trim() || '';
-    const sortOrder = document.querySelector('.sort-select').value;
-    
-    // Фильтрация и сортировка
     let filteredProducts = products.filter(product => {
-        const name = decodeURIComponent(escape(product.name)).toLowerCase();
-        const category = decodeURIComponent(escape(product.category));
-        
-        return (name.includes(searchQuery) || searchQuery === '') &&
-               (category === selectedCategory || selectedCategory === '' || selectedCategory === 'Все');
+        const matchesCategory = currentCategory === 'Все' || product.category === currentCategory;
+        const matchesSearch = product.name.toLowerCase().includes(currentFilter);
+        return matchesCategory && matchesSearch;
     });
-    
+
     // Сортировка
     filteredProducts.sort((a, b) => {
-        switch(sortOrder) {
-            case 'popularity':
-                return b.popularity - a.popularity;
-            case 'price-asc':
+        switch(currentSort) {
+            case 'price_asc':
                 return a.price - b.price;
-            case 'price-desc':
+            case 'price_desc':
                 return b.price - a.price;
+            case 'popular':
+                return b.popularity - a.popularity;
             default:
                 return 0;
         }
     });
-    
-    // Отображение
-    const container = document.querySelector('.products-grid');
-    container.innerHTML = '';
-    
-    filteredProducts.forEach(product => {
-        const name = decodeURIComponent(escape(product.name));
-        const category = decodeURIComponent(escape(product.category));
-        
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <img src="${product.image || 'images/placeholder.svg'}" 
-                 alt="${name}" 
-                 onerror="this.src='images/placeholder.svg'">
-            <h3>${name}</h3>
-            <p class="price">${product.price} zł</p>
-            <p class="category">${category}</p>
-            <button onclick="addToCart(${product.id})">Добавить в корзину</button>
+
+    displayProducts(filteredProducts);
+}
+
+// Отображение товаров
+function displayProducts(products) {
+    productsGrid.innerHTML = '';
+    products.forEach(product => {
+        const productElement = document.createElement('div');
+        productElement.className = 'product-card';
+        productElement.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" class="product-image">
+            <div class="product-info">
+                <h3 class="product-title">${product.name}</h3>
+                <p class="product-price">${product.price} zł</p>
+            </div>
         `;
-        container.appendChild(card);
+        
+        productElement.addEventListener('click', () => {
+            addToCart(product);
+        });
+
+        productsGrid.appendChild(productElement);
     });
-    
-    updateMainButton();
 }
 
 // Показ корзины
@@ -320,8 +304,4 @@ function checkout() {
         document.body.removeChild(cartContainer);
         document.querySelector('.app').style.display = 'block';
     }
-}
-
-function updateMainButton() {
-    tg.MainButton.text = 'Корзина (' + cart.length + ')';
 }
