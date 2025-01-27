@@ -8,7 +8,9 @@ tg.MainButton.color = '#8774e1';
 // Загрузка товаров с GitHub
 async function getProducts() {
     try {
-        const response = await fetch('https://raw.githubusercontent.com/gademoffshit/telegram-shop-bot/main/products.json');
+        // Добавляем timestamp для предотвращения кэширования
+        const timestamp = new Date().getTime();
+        const response = await fetch(`https://raw.githubusercontent.com/gademoffshit/telegram-shop-bot/main/products.json?t=${timestamp}`);
         const data = await response.json();
         return data.products;
     } catch (error) {
@@ -19,10 +21,16 @@ async function getProducts() {
 
 // Получаем актуальный список товаров
 let products = [];
-getProducts().then(loadedProducts => {
-    products = loadedProducts;
+async function loadProducts() {
+    products = await getProducts();
     filterAndDisplayProducts();
-});
+}
+
+// Обновляем товары каждые 30 секунд
+setInterval(loadProducts, 30000);
+
+// Инициализация
+loadProducts();
 
 // DOM элементы
 const productsGrid = document.querySelector('.products-grid');
