@@ -16,10 +16,49 @@ const cartButton = document.getElementById('cartButton');
 const filterBtn = document.querySelector('.filter-btn');
 
 // Состояние приложения
+let products = [];
 let cart = [];
 let currentCategory = 'Люди';
 let currentFilter = '';
 let currentSort = 'default';
+
+// Загрузка товаров с сервера
+async function loadProducts() {
+    try {
+        const response = await fetch('https://your-api-url.com/products');
+        products = await response.json();
+        displayProducts(filterProducts(products));
+    } catch (error) {
+        console.error('Ошибка при загрузке товаров:', error);
+        tg.showPopup({
+            title: 'Ошибка',
+            message: 'Не удалось загрузить товары. Попробуйте позже.',
+            buttons: [{type: 'ok'}]
+        });
+    }
+}
+
+// Фильтрация товаров
+function filterProducts(products) {
+    return products
+        .filter(product => {
+            const matchesCategory = currentCategory === 'Все' || product.category === currentCategory;
+            const matchesSearch = product.name.toLowerCase().includes(currentFilter.toLowerCase());
+            return matchesCategory && matchesSearch;
+        })
+        .sort((a, b) => {
+            switch (currentSort) {
+                case 'price_asc':
+                    return a.price - b.price;
+                case 'price_desc':
+                    return b.price - a.price;
+                case 'popularity':
+                    return b.popularity - a.popularity;
+                default:
+                    return 0;
+            }
+        });
+}
 
 // Обработчики кнопок
 homeButton.addEventListener('click', () => {
@@ -36,31 +75,10 @@ homeButton.addEventListener('click', () => {
         }
     });
     
-    filterAndDisplayProducts();
+    loadProducts();
 });
 
 cartButton.addEventListener('click', showCart);
-
-// Данные о товарах
-const products = [
-    {
-        id: 1,
-        name: 'Ursa Baby Pro Gunmetal Espresso',
-        price: 140,
-        category: 'Одноразки',
-        image: 'https://i.imgur.com/example1.jpg',
-        popularity: 10
-    },
-    {
-        id: 2,
-        name: 'Ursa Nano Pro 2 Classic Brown',
-        price: 150,
-        category: 'Одноразки',
-        image: 'https://i.imgur.com/example2.jpg',
-        popularity: 8
-    },
-    // Добавьте больше товаров здесь
-];
 
 // Обработчики категорий
 categoryButtons.forEach(button => {
@@ -68,46 +86,21 @@ categoryButtons.forEach(button => {
         categoryButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
         currentCategory = button.textContent;
-        filterAndDisplayProducts();
+        loadProducts();
     });
 });
 
 // Поиск
 searchInput.addEventListener('input', (e) => {
     currentFilter = e.target.value.toLowerCase();
-    filterAndDisplayProducts();
+    loadProducts();
 });
 
 // Сортировка
 sortSelect.addEventListener('change', (e) => {
     currentSort = e.target.value;
-    filterAndDisplayProducts();
+    loadProducts();
 });
-
-// Фильтрация и отображение товаров
-function filterAndDisplayProducts() {
-    let filteredProducts = products.filter(product => {
-        const matchesCategory = currentCategory === 'Все' || product.category === currentCategory;
-        const matchesSearch = product.name.toLowerCase().includes(currentFilter);
-        return matchesCategory && matchesSearch;
-    });
-
-    // Сортировка
-    filteredProducts.sort((a, b) => {
-        switch(currentSort) {
-            case 'price_asc':
-                return a.price - b.price;
-            case 'price_desc':
-                return b.price - a.price;
-            case 'popular':
-                return b.popularity - a.popularity;
-            default:
-                return 0;
-        }
-    });
-
-    displayProducts(filteredProducts);
-}
 
 // Отображение товаров
 function displayProducts(products) {
@@ -131,6 +124,136 @@ function displayProducts(products) {
     });
 }
 
+// Показ корзины
+function showCart() {
+    if (cart.length === 0) {
+        tg.showPopup({
+            title: 'Корзина пуста',
+            message: 'Добавьте товары в корзину',
+            buttons: [{id: "ok", type: "cancel", text: "OK"}]
+        });
+        return;
+    }
+
+    // Удаляем существующий контейнер корзины, если он есть
+    const existingCart = document.querySelector('.cart-container');
+    if (existingCart) {
+        existingCart.remove();
+    }
+
+    const mainApp = document.querySelector('.app');
+    mainApp.style.display = 'none';
+
+    const cartContainer = document.createElement('div');
+    cartContainer.className = 'cart-container';
+
+    cartContainer.innerHTML = `
+        <div class="cart-header">
+            <button class="back-button" id="cartBackButton">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <div class="cart-title">CHASER | HOTSPOT</div>
+        </div>
+        
+        <div class="cart-items">
+            ${cart.map((item, index) => `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                    <div class="cart-item-info">
+                        <div class="cart-item-title">${item.name}</div>
+                        <div class="cart-item-price">Роздрібна ціна ${item.price}zł</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus" data-index="${index}">-</button>
+                            <span class="quantity-value">${item.quantity || 1}</span>
+                            <button class="quantity-btn plus" data-index="${index}">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="cart-total">
+            <div class="total-row">
+                <span>Сумма</span>
+                <span>${cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0).toFixed(2)} zł</span>
+            </div>
+            <button class="checkout-button">ОФОРМИТИ ЗАМОВЛЕННЯ</button>
+        </div>
+    `;
+
+    document.body.appendChild(cartContainer);
+
+    function closeCart() {
+        const cart = document.querySelector('.cart-container');
+        if (cart) {
+            cart.remove();
+        }
+        mainApp.style.display = 'block';
+    }
+
+    // Обработчик кнопки "назад"
+    const backButton = document.getElementById('cartBackButton');
+    if (backButton) {
+        backButton.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeCart();
+        };
+    }
+
+    // Добавляем обработчик клавиши Escape
+    function handleEscape(e) {
+        if (e.key === 'Escape') {
+            closeCart();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    }
+    document.addEventListener('keydown', handleEscape);
+
+    // Обработчики кнопок количества
+    const minusButtons = cartContainer.querySelectorAll('.minus');
+    const plusButtons = cartContainer.querySelectorAll('.plus');
+
+    minusButtons.forEach(button => {
+        button.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const index = parseInt(button.dataset.index);
+            if (!cart[index].quantity || cart[index].quantity === 1) {
+                cart.splice(index, 1);
+                updateCartCounter();
+                if (cart.length === 0) {
+                    closeCart();
+                } else {
+                    showCart();
+                }
+            } else {
+                cart[index].quantity--;
+                showCart();
+                updateCartCounter();
+            }
+        };
+    });
+
+    plusButtons.forEach(button => {
+        button.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const index = parseInt(button.dataset.index);
+            cart[index].quantity = (cart[index].quantity || 1) + 1;
+            showCart();
+            updateCartCounter();
+        };
+    });
+
+    const checkoutButton = cartContainer.querySelector('.checkout-button');
+    checkoutButton.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        checkout();
+    };
+}
+
 // Добавление в корзину
 function addToCart(product) {
     const existingProduct = cart.find(item => item.id === product.id);
@@ -145,131 +268,13 @@ function addToCart(product) {
 
 // Обновление счетчика корзины
 function updateCartCounter() {
-    cartCounter.textContent = cart.length;
-    if (cart.length > 0) {
-        tg.MainButton.setText(`Оформить заказ (${cart.length})`);
-        tg.MainButton.show();
+    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    cartCounter.textContent = totalItems;
+    if (totalItems > 0) {
+        cartCounter.style.display = 'flex';
     } else {
-        tg.MainButton.hide();
+        cartCounter.style.display = 'none';
     }
-}
-
-// Показ корзины
-function showCart() {
-    const mainApp = document.querySelector('.app');
-    mainApp.style.display = 'none';
-
-    // Создаем контейнер корзины
-    const cartContainer = document.createElement('div');
-    cartContainer.className = 'cart-container';
-
-    // Добавляем шапку
-    const cartHeader = document.createElement('div');
-    cartHeader.className = 'cart-header';
-    cartHeader.innerHTML = `
-        <button class="back-button">
-            <i class="material-icons">arrow_back</i>
-        </button>
-        <div class="cart-title">CHASER | HOTSPOT</div>
-    `;
-    cartContainer.appendChild(cartHeader);
-
-    // Добавляем товары
-    cart.forEach((item, index) => {
-        const cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
-        cartItem.innerHTML = `
-            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-            <div class="cart-item-info">
-                <div class="cart-item-title">${item.name}</div>
-                <div class="cart-item-price">Роздрібна ціна ${item.price}zł</div>
-                <div class="quantity-controls">
-                    <button class="quantity-btn minus" data-index="${index}">-</button>
-                    <span class="quantity-value">${item.quantity || 1}</span>
-                    <button class="quantity-btn plus" data-index="${index}">+</button>
-                </div>
-            </div>
-        `;
-        cartContainer.appendChild(cartItem);
-    });
-
-    // Добавляем итог
-    const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
-    const cartTotal = document.createElement('div');
-    cartTotal.className = 'cart-total';
-    cartTotal.innerHTML = `
-        <div class="total-row">
-            <span>Сумма</span>
-            <span>${total.toFixed(2)} zł</span>
-        </div>
-        <button class="checkout-button">Оформити замовлення</button>
-    `;
-    cartContainer.appendChild(cartTotal);
-
-    // Добавляем корзину на страницу
-    document.body.appendChild(cartContainer);
-
-    // Обработчики событий
-    const backButton = cartContainer.querySelector('.back-button');
-    backButton.addEventListener('click', () => {
-        document.body.removeChild(cartContainer);
-        mainApp.style.display = 'block';
-    });
-
-    const checkoutButton = cartContainer.querySelector('.checkout-button');
-    checkoutButton.addEventListener('click', () => {
-        checkout();
-        document.body.removeChild(cartContainer);
-        mainApp.style.display = 'block';
-    });
-
-    // Обработчики кнопок количества
-    const minusButtons = cartContainer.querySelectorAll('.minus');
-    const plusButtons = cartContainer.querySelectorAll('.plus');
-
-    minusButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const index = button.dataset.index;
-            if (!cart[index].quantity || cart[index].quantity === 1) {
-                cart.splice(index, 1);
-                if (cart.length === 0) {
-                    document.body.removeChild(cartContainer);
-                    mainApp.style.display = 'block';
-                } else {
-                    showCart(); // Перерисовываем корзину
-                }
-            } else {
-                cart[index].quantity--;
-                showCart(); // Перерисовываем корзину
-            }
-            updateCartCounter();
-        });
-    });
-
-    plusButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const index = button.dataset.index;
-            cart[index].quantity = (cart[index].quantity || 1) + 1;
-            showCart(); // Перерисовываем корзину
-            updateCartCounter();
-        });
-    });
-}
-
-// Удаление товара из корзины
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    updateCartCounter();
-    showCart();
-}
-
-// Очистка корзины
-function clearCart() {
-    cart = [];
-    updateCartCounter();
-    tg.showPopup({
-        message: 'Корзина очищена'
-    });
 }
 
 // Оформление заказа
@@ -278,10 +283,15 @@ function checkout() {
         items: cart,
         total: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
     };
-    
     tg.sendData(JSON.stringify(orderData));
-    clearCart();
+    cart = [];
+    updateCartCounter();
+    const cartContainer = document.querySelector('.cart-container');
+    if (cartContainer) {
+        document.body.removeChild(cartContainer);
+        document.querySelector('.app').style.display = 'block';
+    }
 }
 
 // Инициализация
-filterAndDisplayProducts();
+loadProducts();
