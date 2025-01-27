@@ -5,25 +5,31 @@ tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#8774e1';
 
-// Данные о товарах
-const products = [
-    {
-        id: 1,
-        name: 'Ursa Baby Pro Gunmetal Espresso',
-        price: 140,
-        category: 'Одноразки',
-        image: 'https://hotspot.net.ua/image/cache/catalog/product/ursa/ursa-baby-pro/ursa-baby-pro-gunmetal-espresso-800x800.jpg',
-        popularity: 10
-    },
-    {
-        id: 2,
-        name: 'Ursa Nano Pro 2 Classic Brown',
-        price: 150,
-        category: 'Одноразки',
-        image: 'https://hotspot.net.ua/image/cache/catalog/product/ursa/ursa-nano-pro-2/ursa-nano-pro-2-classic-brown-800x800.jpg',
-        popularity: 8
-    }
-];
+// Загрузка товаров из localStorage
+function getProducts() {
+    const products = localStorage.getItem('products');
+    return products ? JSON.parse(products) : [
+        {
+            id: 1,
+            name: 'Ursa Baby Pro Gunmetal Espresso',
+            price: 140,
+            category: 'Одноразки',
+            image: 'https://hotspot.net.ua/image/cache/catalog/product/ursa/ursa-baby-pro/ursa-baby-pro-gunmetal-espresso-800x800.jpg',
+            popularity: 10
+        },
+        {
+            id: 2,
+            name: 'Ursa Nano Pro 2 Classic Brown',
+            price: 150,
+            category: 'Одноразки',
+            image: 'https://hotspot.net.ua/image/cache/catalog/product/ursa/ursa-nano-pro-2/ursa-nano-pro-2-classic-brown-800x800.jpg',
+            popularity: 8
+        }
+    ];
+}
+
+// Получаем актуальный список товаров
+let products = getProducts();
 
 // DOM элементы
 const productsGrid = document.querySelector('.products-grid');

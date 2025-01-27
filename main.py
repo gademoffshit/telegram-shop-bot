@@ -9,7 +9,6 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 import os
-import requests
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -63,33 +62,6 @@ async def help_handler(callback: types.CallbackQuery):
     )
     await callback.message.answer(help_text)
     await callback.answer()
-
-@dp.message(content_types=['web_app_data'])
-async def web_app_data(message: types.Message):
-    try:
-        data = json.loads(message.web_app_data.data)
-        order_text = "🛍 Новый заказ:\n\n"
-        total = 0
-
-        for item in data['items']:
-            amount = item['price'] * item.get('quantity', 1)
-            total += amount
-            order_text += f"• {item['name']}\n"
-            order_text += f"  {item.get('quantity', 1)} x {item['price']} zł = {amount} zł\n"
-
-        order_text += f"\n💰 Итого: {total} zł"
-        
-        await message.answer(order_text)
-        await message.answer("✅ Ваш заказ принят! Мы свяжемся с вами в ближайшее время.")
-        
-        # Отправляем заказ на сервер для обработки
-        response = requests.post('http://localhost:5000/api/orders', json=data)
-        if response.status_code != 201:
-            await message.answer("❌ Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте снова.")
-        
-    except Exception as e:
-        await message.answer("❌ Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте снова.")
-        print(f"Error processing order: {e}")
 
 async def main():
     """Запуск бота"""

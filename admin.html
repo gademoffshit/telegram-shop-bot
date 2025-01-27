@@ -9,17 +9,17 @@
         :root {
             --tg-theme-bg-color: #1f1f1f;
             --tg-theme-text-color: #ffffff;
-            --tg-theme-hint-color: #888888;
-            --tg-theme-link-color: #6ab3f3;
-            --accent-color: #8774e1;
+            --tg-theme-hint-color: #aaaaaa;
+            --tg-theme-button-color: #50a8eb;
+            --tg-theme-button-text-color: #ffffff;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
             margin: 0;
             padding: 20px;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
         }
 
         .container {
@@ -31,340 +31,215 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        .title {
-            font-size: 24px;
-            font-weight: bold;
+        .product-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
 
-        .add-button {
-            background-color: var(--accent-color);
-            color: white;
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--tg-theme-hint-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--tg-theme-text-color);
+        }
+
+        button {
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        }
+
+        button:hover {
+            opacity: 0.9;
         }
 
         .products-list {
             display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
         }
 
         .product-card {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 16px;
-            display: grid;
-            grid-template-columns: 100px 1fr auto;
-            gap: 16px;
-            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
         }
 
         .product-image {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            height: 200px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
         }
 
-        .product-info {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .product-title {
-            font-size: 18px;
-            font-weight: 500;
-            margin: 0;
-        }
-
-        .product-price {
-            color: var(--tg-theme-hint-color);
+        .product-info h3 {
+            margin: 0 0 10px 0;
         }
 
         .product-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 10px;
         }
 
-        .action-button {
-            background: none;
-            border: none;
-            color: var(--tg-theme-text-color);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
+        .delete-btn {
+            background-color: #dc3545;
         }
 
-        .action-button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background-color: var(--tg-theme-bg-color);
-            padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 500;
-        }
-
-        .close-button {
-            background: none;
-            border: none;
-            color: var(--tg-theme-text-color);
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--tg-theme-hint-color);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--tg-theme-text-color);
-            font-size: 16px;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .save-button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        .save-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .edit-btn {
+            background-color: #28a745;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="title">CHASER | HOTSPOT - Админ панель</div>
-            <button class="add-button" onclick="showAddModal()">
-                <i class="material-icons">add</i>
-                Добавить товар
-            </button>
+            <h1>CHASER | HOTSPOT - Админ панель</h1>
         </div>
-        <div class="products-list" id="productsList">
-            <!-- Products will be loaded here -->
-        </div>
-    </div>
 
-    <!-- Modal for adding/editing product -->
-    <div class="modal" id="productModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title" id="modalTitle">Добавить товар</div>
-                <button class="close-button" onclick="hideModal()">
-                    <i class="material-icons">close</i>
-                </button>
-            </div>
-            <form id="productForm" onsubmit="saveProduct(event)">
+        <div class="product-form">
+            <h2>Добавить/Редактировать товар</h2>
+            <form id="productForm">
                 <input type="hidden" id="productId">
                 <div class="form-group">
-                    <label class="form-label" for="name">Название товара</label>
-                    <input type="text" id="name" class="form-input" required>
+                    <label for="name">Название товара</label>
+                    <input type="text" id="name" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="price">Цена (zł)</label>
-                    <input type="number" id="price" class="form-input" required min="0" step="0.01">
+                    <label for="price">Цена (zł)</label>
+                    <input type="number" id="price" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="category">Категория</label>
-                    <input type="text" id="category" class="form-input" required>
+                    <label for="category">Категория</label>
+                    <select id="category" required>
+                        <option value="Люди">Люди</option>
+                        <option value="Рудина">Рудина</option>
+                        <option value="Одноразки">Одноразки</option>
+                        <option value="Картриджи">Картриджи</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="image">URL изображения</label>
-                    <input type="url" id="image" class="form-input" required>
+                    <label for="image">URL изображения</label>
+                    <input type="url" id="image" required>
                 </div>
-                <button type="submit" class="save-button">Сохранить</button>
+                <button type="submit">Сохранить</button>
             </form>
         </div>
+
+        <div class="products-list" id="productsList"></div>
     </div>
 
     <script>
-        let products = [];
-        const API_URL = 'https://your-vds-domain.com/api'; // Замените на ваш домен
+        // Функции для работы с localStorage
+        function getProducts() {
+            const products = localStorage.getItem('products');
+            return products ? JSON.parse(products) : [];
+        }
 
-        // Загрузка товаров
-        async function loadProducts() {
-            try {
-                const response = await fetch(`${API_URL}/products`);
-                products = await response.json();
-                renderProducts();
-            } catch (error) {
-                console.error('Error loading products:', error);
-            }
+        function saveProducts(products) {
+            localStorage.setItem('products', JSON.stringify(products));
         }
 
         // Отображение товаров
-        function renderProducts() {
+        function displayProducts() {
             const productsList = document.getElementById('productsList');
-            productsList.innerHTML = products.map(product => `
+            const products = getProducts();
+            
+            productsList.innerHTML = products.map((product, index) => `
                 <div class="product-card">
                     <img src="${product.image}" alt="${product.name}" class="product-image">
                     <div class="product-info">
-                        <h3 class="product-title">${product.name}</h3>
-                        <div class="product-price">${product.price} zł</div>
-                        <div class="product-category">${product.category}</div>
-                    </div>
-                    <div class="product-actions">
-                        <button class="action-button" onclick="editProduct(${product.id})">
-                            <i class="material-icons">edit</i>
-                        </button>
-                        <button class="action-button" onclick="deleteProduct(${product.id})">
-                            <i class="material-icons">delete</i>
-                        </button>
+                        <h3>${product.name}</h3>
+                        <p>Цена: ${product.price} zł</p>
+                        <p>Категория: ${product.category}</p>
+                        <div class="product-actions">
+                            <button onclick="editProduct(${index})" class="edit-btn">Редактировать</button>
+                            <button onclick="deleteProduct(${index})" class="delete-btn">Удалить</button>
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Показать модальное окно добавления товара
-        function showAddModal() {
-            document.getElementById('modalTitle').textContent = 'Добавить товар';
-            document.getElementById('productForm').reset();
-            document.getElementById('productId').value = '';
-            document.getElementById('productModal').classList.add('active');
-        }
-
-        // Показать модальное окно редактирования товара
-        function editProduct(id) {
-            const product = products.find(p => p.id === id);
-            if (product) {
-                document.getElementById('modalTitle').textContent = 'Редактировать товар';
-                document.getElementById('productId').value = product.id;
-                document.getElementById('name').value = product.name;
-                document.getElementById('price').value = product.price;
-                document.getElementById('category').value = product.category;
-                document.getElementById('image').value = product.image;
-                document.getElementById('productModal').classList.add('active');
-            }
-        }
-
-        // Скрыть модальное окно
-        function hideModal() {
-            document.getElementById('productModal').classList.remove('active');
-        }
-
-        // Сохранить товар
-        async function saveProduct(event) {
-            event.preventDefault();
+        // Добавление/редактирование товара
+        document.getElementById('productForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
             const productId = document.getElementById('productId').value;
-            const productData = {
+            const product = {
+                id: productId || Date.now(),
                 name: document.getElementById('name').value,
                 price: parseFloat(document.getElementById('price').value),
                 category: document.getElementById('category').value,
-                image: document.getElementById('image').value
+                image: document.getElementById('image').value,
+                popularity: 0
             };
 
-            try {
-                const url = productId 
-                    ? `${API_URL}/products/${productId}`
-                    : `${API_URL}/products`;
-                const method = productId ? 'PUT' : 'POST';
-
-                const response = await fetch(url, {
-                    method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(productData)
-                });
-
-                if (response.ok) {
-                    await loadProducts();
-                    hideModal();
-                } else {
-                    throw new Error('Failed to save product');
+            const products = getProducts();
+            
+            if (productId) {
+                // Редактирование
+                const index = products.findIndex(p => p.id.toString() === productId);
+                if (index !== -1) {
+                    products[index] = product;
                 }
-            } catch (error) {
-                console.error('Error saving product:', error);
-                alert('Ошибка при сохранении товара');
+            } else {
+                // Добавление нового
+                products.push(product);
             }
+
+            saveProducts(products);
+            displayProducts();
+            e.target.reset();
+            document.getElementById('productId').value = '';
+        });
+
+        // Редактирование товара
+        function editProduct(index) {
+            const products = getProducts();
+            const product = products[index];
+            
+            document.getElementById('productId').value = product.id;
+            document.getElementById('name').value = product.name;
+            document.getElementById('price').value = product.price;
+            document.getElementById('category').value = product.category;
+            document.getElementById('image').value = product.image;
         }
 
-        // Удалить товар
-        async function deleteProduct(id) {
+        // Удаление товара
+        function deleteProduct(index) {
             if (confirm('Вы уверены, что хотите удалить этот товар?')) {
-                try {
-                    const response = await fetch(`${API_URL}/products/${id}`, {
-                        method: 'DELETE'
-                    });
-
-                    if (response.ok) {
-                        await loadProducts();
-                    } else {
-                        throw new Error('Failed to delete product');
-                    }
-                } catch (error) {
-                    console.error('Error deleting product:', error);
-                    alert('Ошибка при удалении товара');
-                }
+                const products = getProducts();
+                products.splice(index, 1);
+                saveProducts(products);
+                displayProducts();
             }
         }
 
-        // Загрузка товаров при старте
-        loadProducts();
+        // Инициализация
+        displayProducts();
     </script>
 </body>
 </html>
