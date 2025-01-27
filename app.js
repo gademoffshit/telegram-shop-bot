@@ -8,33 +8,11 @@ tg.MainButton.color = '#8774e1';
 // Загрузка товаров с GitHub
 async function getProducts() {
     try {
-        const response = await fetch('https://api.github.com/repos/gademoffshit/telegram-shop-bot/contents/products.json', {
-            headers: {
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch products');
-        }
-
-        const file = await response.json();
-        // Используем TextDecoder для правильной декодировки UTF-8
-        const decoder = new TextDecoder();
-        const content = JSON.parse(
-            decoder.decode(
-                Uint8Array.from(atob(file.content), c => c.charCodeAt(0))
-            )
-        );
-        
-        // Декодируем названия и категории
-        content.products = content.products.map(product => ({
-            ...product,
-            name: decodeURIComponent(escape(product.name)),
-            category: decodeURIComponent(escape(product.category))
-        }));
-        
-        return content.products;
+        // Добавляем timestamp для предотвращения кэширования
+        const timestamp = new Date().getTime();
+        const response = await fetch(`https://raw.githubusercontent.com/gademoffshit/telegram-shop-bot/main/products.json?t=${timestamp}`);
+        const data = await response.json();
+        return data.products;
     } catch (error) {
         console.error('Error loading products:', error);
         return [];
@@ -48,8 +26,8 @@ async function loadProducts() {
     filterAndDisplayProducts();
 }
 
-// Обновляем товары каждые 5 секунд
-setInterval(loadProducts, 5000);
+// Обновляем товары каждые 30 секунд
+setInterval(loadProducts, 30000);
 
 // Инициализация
 loadProducts();
@@ -66,13 +44,13 @@ const filterBtn = document.querySelector('.filter-btn');
 
 // Состояние приложения
 let cart = [];
-let currentCategory = 'Все';
+let currentCategory = 'Люди';
 let currentFilter = '';
 let currentSort = 'default';
 
 // Обработчики кнопок
 homeButton.addEventListener('click', () => {
-    currentCategory = 'Все';
+    currentCategory = 'Люди';
     searchInput.value = '';
     currentFilter = '';
     sortSelect.value = 'default';
@@ -80,7 +58,7 @@ homeButton.addEventListener('click', () => {
     
     categoryButtons.forEach(btn => {
         btn.classList.remove('active');
-        if (btn.textContent === 'Все') {
+        if (btn.textContent === 'Люди') {
             btn.classList.add('active');
         }
     });
@@ -144,14 +122,10 @@ function displayProducts(products) {
         const productElement = document.createElement('div');
         productElement.className = 'product-card';
         productElement.innerHTML = `
-            <img src="${product.image}" 
-                 alt="${product.name}" 
-                 class="product-image"
-                 onerror="this.src='images/placeholder.svg'">
+            <img src="${product.image}" alt="${product.name}" class="product-image">
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
                 <p class="product-price">${product.price} zł</p>
-                <p class="product-category">${product.category}</p>
             </div>
         `;
         

@@ -248,20 +248,9 @@
         // Функции для работы с GitHub API
         async function getProducts() {
             try {
-                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch products');
-                }
-
-                const file = await response.json();
-                const content = JSON.parse(atob(file.content));
-                return content.products;
+                const response = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}`);
+                const data = await response.json();
+                return data.products;
             } catch (error) {
                 console.error('Error loading products:', error);
                 return [];
@@ -276,35 +265,22 @@
 
             showLoading();
 
+            const content = {
+                products: products
+            };
+
             try {
                 // Получаем текущий SHA файла
-                const currentFileResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                const currentFile = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
-                });
-
-                if (!currentFileResponse.ok) {
-                    throw new Error('Failed to get current file');
-                }
-
-                const currentFile = await currentFileResponse.json();
-
-                // Подготавливаем продукты к сохранению
-                const preparedProducts = products.map(product => ({
-                    ...product,
-                    name: product.name,
-                    category: product.category
-                }));
-
-                const content = {
-                    products: preparedProducts
-                };
+                }).then(res => res.json());
 
                 // Преобразуем контент в base64
                 const contentStr = JSON.stringify(content, null, 2);
-                const contentBase64 = btoa(contentStr);
+                const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
 
                 // Обновляем файл
                 const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
@@ -317,21 +293,22 @@
                     body: JSON.stringify({
                         message: 'Update products',
                         content: contentBase64,
-                        sha: currentFile.sha // Используем актуальный SHA
+                        sha: currentFile.sha
                     })
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('GitHub API Error:', errorData);
-                    throw new Error(`Failed to save products: ${errorData.message}`);
+                    throw new Error('Failed to save products');
                 }
+
+                // Ждем 2 секунды, чтобы GitHub обновил raw файл
+                await new Promise(resolve => setTimeout(resolve, 2000));
 
                 alert('Товары успешно сохранены!');
                 await displayProducts();
             } catch (error) {
                 console.error('Error saving products:', error);
-                alert(`Ошибка при сохранении товаров: ${error.message}`);
+                alert('Ошибка при сохранении товаров. Проверьте консоль для деталей.');
             } finally {
                 hideLoading();
             }
@@ -358,35 +335,27 @@
 
         // Отображение товаров
         async function displayProducts() {
-            showLoading();
-            try {
-                const productsList = document.getElementById('productsList');
-                const products = await getProducts();
-                
-                productsList.innerHTML = products.map((product, index) => `
-                    <div class="product-card">
-                        <img src="${product.image}" 
-                             alt="${product.name}" 
-                             class="product-image" 
-                             onerror="this.src='images/placeholder.svg'">
-                        <div class="product-info">
-                            <h3>${product.name}</h3>
-                            <p>Цена: ${product.price} zł</p>
-                            <p>Категория: ${product.category}</p>
-                            <div class="product-actions">
-                                <button onclick="editProduct(${index})" class="edit-btn">Редактировать</button>
-                                <button onclick="deleteProduct(${index})" class="delete-btn">Удалить</button>
-                            </div>
+            const productsList = document.getElementById('productsList');
+            const products = await getProducts();
+            
+            productsList.innerHTML = products.map((product, index) => `
+                <div class="product-card">
+                    <img src="${product.image}" 
+                         alt="${product.name}" 
+                         class="product-image" 
+                         onerror="this.src='images/placeholder.svg'">
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p>Цена: ${product.price} zł</p>
+                        <p>Категория: ${product.category}</p>
+                        <div class="product-actions">
+                            <button onclick="editProduct(${index})" class="edit-btn">Редактировать</button>
+                            <button onclick="deleteProduct(${index})" class="delete-btn">Удалить</button>
                         </div>
                     </div>
-                `).join('');
-            } finally {
-                hideLoading();
-            }
+                </div>
+            `).join('');
         }
-
-        // Автоматическое обновление списка товаров
-        setInterval(displayProducts, 5000);
 
         // Валидация формы
         async function validateForm() {
