@@ -1,57 +1,57 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CHASER | HOTSPOT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
+    <div class="app">
         <header>
-            <div class="home-icon">
-                <img src="home.svg" alt="Home">
-            </div>
-            <div class="search-bar">
-                <input type="text" placeholder="Пошук...">
-            </div>
-            <div class="cart-icon">
-                <img src="cart.svg" alt="Cart">
-                <span class="cart-counter">0</span>
+            <div class="header-content">
+                <a href="#" class="home-btn">
+                    <i class="material-icons">home</i>
+                </a>
+                <div class="search-container">
+                    <input type="text" placeholder="Пошук..." class="search-input">
+                    <i class="material-icons search-icon">search</i>
+                </div>
+                <button class="cart-btn">
+                    <i class="material-icons">shopping_bag</i>
+                    <span class="cart-counter">0</span>
+                </button>
             </div>
         </header>
 
-        <div class="categories">
-            <button class="category-btn active">Люди</button>
-            <button class="category-btn">Рідина</button>
-            <button class="category-btn">Одноразки</button>
-            <button class="category-btn">Картриджі</button>
+        <div class="categories-scroll">
+            <div class="categories">
+                <button class="category-btn active">Люди</button>
+                <button class="category-btn">Рідина</button>
+                <button class="category-btn">Одноразки</button>
+                <button class="category-btn">Картриджі</button>
+                <button class="category-btn">Аксесуари</button>
+            </div>
         </div>
 
         <div class="filters">
             <button class="filter-btn">
+                <i class="material-icons">filter_list</i>
                 Фільтр <span class="filter-count">0</span>
             </button>
             <select class="sort-select">
-                <option>За замовчуванням</option>
-                <option>За ціною</option>
-                <option>За популярністю</option>
+                <option value="default">За замовчуванням</option>
+                <option value="price_asc">Від дешевих до дорогих</option>
+                <option value="price_desc">Від дорогих до дешевих</option>
+                <option value="popular">За популярністю</option>
             </select>
         </div>
 
-        <div class="products">
-            <div class="product-card">
-                <img src="product1.jpg" alt="Ursa Baby Pro">
-                <h3>Ursa Baby Pro Gunmetal Espresso</h3>
-                <p class="price">140 zł</p>
-            </div>
-            <div class="product-card">
-                <img src="product2.jpg" alt="Ursa Nano Pro">
-                <h3>Ursa Nano Pro 2 Classic Brown</h3>
-                <p class="price">150 zł</p>
-            </div>
-        </div>
+        <main class="products-grid">
+            <!-- Продукты будут добавлены через JavaScript -->
+        </main>
     </div>
     <script src="app.js"></script>
 </body>
