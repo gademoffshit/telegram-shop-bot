@@ -15,6 +15,14 @@ async function getProducts() {
         });
         const file = await response.json();
         const content = JSON.parse(atob(file.content));
+        
+        // Декодируем названия и категории
+        content.products = content.products.map(product => ({
+            ...product,
+            name: decodeURIComponent(escape(product.name)),
+            category: decodeURIComponent(escape(product.category))
+        }));
+        
         return content.products;
     } catch (error) {
         console.error('Error loading products:', error);
@@ -47,13 +55,13 @@ const filterBtn = document.querySelector('.filter-btn');
 
 // Состояние приложения
 let cart = [];
-let currentCategory = 'Люди';
+let currentCategory = 'Все';
 let currentFilter = '';
 let currentSort = 'default';
 
 // Обработчики кнопок
 homeButton.addEventListener('click', () => {
-    currentCategory = 'Люди';
+    currentCategory = 'Все';
     searchInput.value = '';
     currentFilter = '';
     sortSelect.value = 'default';
@@ -61,7 +69,7 @@ homeButton.addEventListener('click', () => {
     
     categoryButtons.forEach(btn => {
         btn.classList.remove('active');
-        if (btn.textContent === 'Люди') {
+        if (btn.textContent === 'Все') {
             btn.classList.add('active');
         }
     });
@@ -125,10 +133,14 @@ function displayProducts(products) {
         const productElement = document.createElement('div');
         productElement.className = 'product-card';
         productElement.innerHTML = `
-            <img src="${product.image}" alt="${product.name}" class="product-image">
+            <img src="${product.image}" 
+                 alt="${product.name}" 
+                 class="product-image"
+                 onerror="this.src='images/placeholder.svg'">
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
                 <p class="product-price">${product.price} zł</p>
+                <p class="product-category">${product.category}</p>
             </div>
         `;
         

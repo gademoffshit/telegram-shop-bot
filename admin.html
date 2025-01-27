@@ -256,6 +256,14 @@
                 });
                 const file = await response.json();
                 const content = JSON.parse(atob(file.content));
+                
+                // Декодируем названия и категории
+                content.products = content.products.map(product => ({
+                    ...product,
+                    name: decodeURIComponent(escape(product.name)),
+                    category: decodeURIComponent(escape(product.category))
+                }));
+                
                 return content.products;
             } catch (error) {
                 console.error('Error loading products:', error);
@@ -271,11 +279,18 @@
 
             showLoading();
 
-            const content = {
-                products: products
-            };
-
             try {
+                // Кодируем названия и категории перед сохранением
+                const encodedProducts = products.map(product => ({
+                    ...product,
+                    name: unescape(encodeURIComponent(product.name)),
+                    category: unescape(encodeURIComponent(product.category))
+                }));
+
+                const content = {
+                    products: encodedProducts
+                };
+
                 // Получаем текущий SHA файла
                 const currentFile = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     headers: {
@@ -306,9 +321,6 @@
                 if (!response.ok) {
                     throw new Error('Failed to save products');
                 }
-
-                // Ждем 2 секунды, чтобы GitHub обновил raw файл
-                await new Promise(resolve => setTimeout(resolve, 2000));
 
                 alert('Товары успешно сохранены!');
                 await displayProducts();
