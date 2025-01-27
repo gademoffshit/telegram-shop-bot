@@ -3,32 +3,7 @@ tg.expand();
 
 // Инициализация Telegram WebApp
 tg.MainButton.textColor = '#FFFFFF';
-tg.MainButton.color = '#2cab37';
-
-// Данные о товарах
-const products = [
-    {
-        id: 1,
-        name: 'Ursa Baby Pro Gunmetal Espresso',
-        price: '140 zł',
-        category: 'Одноразки',
-        image: 'https://i.imgur.com/example1.jpg'
-    },
-    {
-        id: 2,
-        name: 'Ursa Nano Pro 2 Classic Brown',
-        price: '150 zł',
-        category: 'Одноразки',
-        image: 'https://i.imgur.com/example2.jpg'
-    },
-    // Добавьте больше товаров здесь
-];
-
-// Корзина
-let cart = [];
-let currentCategory = 'Люди';
-let currentFilter = '';
-let currentSort = 'default';
+tg.MainButton.color = '#8774e1';
 
 // DOM элементы
 const productsGrid = document.querySelector('.products-grid');
@@ -36,7 +11,56 @@ const categoryButtons = document.querySelectorAll('.category-btn');
 const searchInput = document.querySelector('.search-input');
 const sortSelect = document.querySelector('.sort-select');
 const cartCounter = document.querySelector('.cart-counter');
+const homeButton = document.getElementById('homeButton');
+const cartButton = document.getElementById('cartButton');
 const filterBtn = document.querySelector('.filter-btn');
+
+// Состояние приложения
+let cart = [];
+let currentCategory = 'Люди';
+let currentFilter = '';
+let currentSort = 'default';
+
+// Обработчики кнопок
+homeButton.addEventListener('click', () => {
+    currentCategory = 'Люди';
+    searchInput.value = '';
+    currentFilter = '';
+    sortSelect.value = 'default';
+    currentSort = 'default';
+    
+    categoryButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent === 'Люди') {
+            btn.classList.add('active');
+        }
+    });
+    
+    filterAndDisplayProducts();
+});
+
+cartButton.addEventListener('click', showCart);
+
+// Данные о товарах
+const products = [
+    {
+        id: 1,
+        name: 'Ursa Baby Pro Gunmetal Espresso',
+        price: 140,
+        category: 'Одноразки',
+        image: 'https://i.imgur.com/example1.jpg',
+        popularity: 10
+    },
+    {
+        id: 2,
+        name: 'Ursa Nano Pro 2 Classic Brown',
+        price: 150,
+        category: 'Одноразки',
+        image: 'https://i.imgur.com/example2.jpg',
+        popularity: 8
+    },
+    // Добавьте больше товаров здесь
+];
 
 // Обработчики категорий
 categoryButtons.forEach(button => {
@@ -72,9 +96,9 @@ function filterAndDisplayProducts() {
     filteredProducts.sort((a, b) => {
         switch(currentSort) {
             case 'price_asc':
-                return parseFloat(a.price) - parseFloat(b.price);
+                return a.price - b.price;
             case 'price_desc':
-                return parseFloat(b.price) - parseFloat(a.price);
+                return b.price - a.price;
             case 'popular':
                 return b.popularity - a.popularity;
             default:
@@ -95,7 +119,7 @@ function displayProducts(products) {
             <img src="${product.image}" alt="${product.name}" class="product-image">
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
-                <p class="product-price">${product.price}</p>
+                <p class="product-price">${product.price} zł</p>
             </div>
         `;
         
@@ -139,12 +163,21 @@ function updateCartCounter() {
 
 // Показ корзины
 function showCart() {
+    if (cart.length === 0) {
+        tg.showPopup({
+            title: 'Корзина пуста',
+            message: 'Добавьте товары в корзину',
+            buttons: [{id: "ok", type: "cancel", text: "OK"}]
+        });
+        return;
+    }
+
     let cartMessage = 'Корзина:\n\n';
     let total = 0;
     
     cart.forEach((item, index) => {
-        cartMessage += `${index + 1}. ${item.name} - ${item.price}\n`;
-        total += parseFloat(item.price);
+        cartMessage += `${index + 1}. ${item.name} - ${item.price} zł\n`;
+        total += item.price;
     });
     
     cartMessage += `\nИтого: ${total} zł`;
@@ -177,10 +210,12 @@ function clearCart() {
 
 // Оформление заказа
 function checkout() {
-    // Здесь будет логика оформления заказа
-    tg.showPopup({
-        message: 'Заказ оформлен! Мы свяжемся с вами для подтверждения.'
-    });
+    const orderData = {
+        items: cart,
+        total: cart.reduce((sum, item) => sum + item.price, 0)
+    };
+    
+    tg.sendData(JSON.stringify(orderData));
     clearCart();
 }
 
