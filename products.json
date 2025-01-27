@@ -1,18 +1,10 @@
 {
   "products": [
     {
-      "id": 1,
-      "name": "ÑÐ»ÐµÐ½ Ð¼Ð¾Ð¹",
-      "price": 11111,
-      "category": "Ð ÑÐ´Ð¸Ð½Ð°",
-      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
-      "popularity": 0
-    },
-    {
       "id": 2,
       "name": "gademoff",
       "price": 1000,
-      "category": "Одноразки",
+      "category": "ÐÐ´Ð½Ð¾ÑÐ°Ð·ÐºÐ¸",
       "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
       "popularity": 0
     }
