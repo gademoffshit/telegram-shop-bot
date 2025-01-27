@@ -172,19 +172,40 @@ function showCart() {
         return;
     }
 
-    let cartMessage = 'Корзина:\n\n';
-    let total = 0;
+    const cartPopup = document.createElement('div');
+    cartPopup.className = 'cart-popup';
     
+    // Добавляем товары
     cart.forEach((item, index) => {
-        cartMessage += `${index + 1}. ${item.name} - ${item.price} zł\n`;
-        total += item.price;
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
+        cartItem.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+            <div class="cart-item-info">
+                <div class="cart-item-title">${item.name}</div>
+                <div class="cart-item-price">${item.price} zł</div>
+            </div>
+            <button class="cart-item-remove" data-index="${index}">
+                <i class="material-icons">close</i>
+            </button>
+        `;
+        cartPopup.appendChild(cartItem);
     });
-    
-    cartMessage += `\nИтого: ${total} zł`;
-    
+
+    // Добавляем итоговую сумму
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const totalElement = document.createElement('div');
+    totalElement.className = 'cart-total';
+    totalElement.innerHTML = `
+        <span>Итого:</span>
+        <span>${total} zł</span>
+    `;
+    cartPopup.appendChild(totalElement);
+
+    // Показываем попап
     tg.showPopup({
         title: 'Корзина',
-        message: cartMessage,
+        message: cartPopup.outerHTML,
         buttons: [
             {id: "checkout", type: "default", text: "Оформить заказ"},
             {id: "clear", type: "destructive", text: "Очистить корзину"},
@@ -197,6 +218,24 @@ function showCart() {
             clearCart();
         }
     });
+
+    // Добавляем обработчики для кнопок удаления
+    setTimeout(() => {
+        const removeButtons = document.querySelectorAll('.cart-item-remove');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = parseInt(button.dataset.index);
+                removeFromCart(index);
+            });
+        });
+    }, 100);
+}
+
+// Удаление товара из корзины
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCartCounter();
+    showCart();
 }
 
 // Очистка корзины
