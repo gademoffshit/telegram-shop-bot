@@ -5,6 +5,26 @@ tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#8774e1';
 
+// Данные о товарах
+const products = [
+    {
+        id: 1,
+        name: 'Ursa Baby Pro Gunmetal Espresso',
+        price: 140,
+        category: 'Одноразки',
+        image: 'https://hotspot.net.ua/image/cache/catalog/product/ursa/ursa-baby-pro/ursa-baby-pro-gunmetal-espresso-800x800.jpg',
+        popularity: 10
+    },
+    {
+        id: 2,
+        name: 'Ursa Nano Pro 2 Classic Brown',
+        price: 150,
+        category: 'Одноразки',
+        image: 'https://hotspot.net.ua/image/cache/catalog/product/ursa/ursa-nano-pro-2/ursa-nano-pro-2-classic-brown-800x800.jpg',
+        popularity: 8
+    }
+];
+
 // DOM элементы
 const productsGrid = document.querySelector('.products-grid');
 const categoryButtons = document.querySelectorAll('.category-btn');
@@ -16,49 +36,10 @@ const cartButton = document.getElementById('cartButton');
 const filterBtn = document.querySelector('.filter-btn');
 
 // Состояние приложения
-let products = [];
 let cart = [];
 let currentCategory = 'Люди';
 let currentFilter = '';
 let currentSort = 'default';
-
-// Загрузка товаров с сервера
-async function loadProducts() {
-    try {
-        const response = await fetch('https://your-api-url.com/products');
-        products = await response.json();
-        displayProducts(filterProducts(products));
-    } catch (error) {
-        console.error('Ошибка при загрузке товаров:', error);
-        tg.showPopup({
-            title: 'Ошибка',
-            message: 'Не удалось загрузить товары. Попробуйте позже.',
-            buttons: [{type: 'ok'}]
-        });
-    }
-}
-
-// Фильтрация товаров
-function filterProducts(products) {
-    return products
-        .filter(product => {
-            const matchesCategory = currentCategory === 'Все' || product.category === currentCategory;
-            const matchesSearch = product.name.toLowerCase().includes(currentFilter.toLowerCase());
-            return matchesCategory && matchesSearch;
-        })
-        .sort((a, b) => {
-            switch (currentSort) {
-                case 'price_asc':
-                    return a.price - b.price;
-                case 'price_desc':
-                    return b.price - a.price;
-                case 'popularity':
-                    return b.popularity - a.popularity;
-                default:
-                    return 0;
-            }
-        });
-}
 
 // Обработчики кнопок
 homeButton.addEventListener('click', () => {
@@ -75,7 +56,7 @@ homeButton.addEventListener('click', () => {
         }
     });
     
-    loadProducts();
+    filterAndDisplayProducts();
 });
 
 cartButton.addEventListener('click', showCart);
@@ -86,21 +67,46 @@ categoryButtons.forEach(button => {
         categoryButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
         currentCategory = button.textContent;
-        loadProducts();
+        filterAndDisplayProducts();
     });
 });
 
 // Поиск
 searchInput.addEventListener('input', (e) => {
     currentFilter = e.target.value.toLowerCase();
-    loadProducts();
+    filterAndDisplayProducts();
 });
 
 // Сортировка
 sortSelect.addEventListener('change', (e) => {
     currentSort = e.target.value;
-    loadProducts();
+    filterAndDisplayProducts();
 });
+
+// Фильтрация и отображение товаров
+function filterAndDisplayProducts() {
+    let filteredProducts = products.filter(product => {
+        const matchesCategory = currentCategory === 'Все' || product.category === currentCategory;
+        const matchesSearch = product.name.toLowerCase().includes(currentFilter);
+        return matchesCategory && matchesSearch;
+    });
+
+    // Сортировка
+    filteredProducts.sort((a, b) => {
+        switch(currentSort) {
+            case 'price_asc':
+                return a.price - b.price;
+            case 'price_desc':
+                return b.price - a.price;
+            case 'popular':
+                return b.popularity - a.popularity;
+            default:
+                return 0;
+        }
+    });
+
+    displayProducts(filteredProducts);
+}
 
 // Отображение товаров
 function displayProducts(products) {
@@ -294,4 +300,4 @@ function checkout() {
 }
 
 // Инициализация
-loadProducts();
+filterAndDisplayProducts();
