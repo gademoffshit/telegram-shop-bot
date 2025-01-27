@@ -5,24 +5,23 @@ tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#8774e1';
 
+// GitHub API конфигурация
+const REPO_OWNER = 'gademoffshit';
+const REPO_NAME = 'telegram-shop-bot';
+const FILE_PATH = 'products.json';
+
 // Загрузка товаров с GitHub
 async function getProducts() {
     try {
-        // Добавляем случайный параметр для предотвращения кэширования
-        const nocache = Math.random();
-        const response = await fetch(`https://raw.githubusercontent.com/gademoffshit/telegram-shop-bot/main/products.json?nocache=${nocache}`, {
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            }
-        });
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch products');
         }
 
-        const data = await response.json();
-        return data.products;
+        const file = await response.json();
+        const content = JSON.parse(atob(file.content));
+        return content.products;
     } catch (error) {
         console.error('Error loading products:', error);
         return [];
@@ -36,8 +35,8 @@ async function loadProducts() {
     filterAndDisplayProducts();
 }
 
-// Обновляем товары каждые 5 секунд
-setInterval(loadProducts, 5000);
+// Обновляем товары каждые 10 секунд
+setInterval(loadProducts, 10000);
 
 // Инициализация
 loadProducts();
