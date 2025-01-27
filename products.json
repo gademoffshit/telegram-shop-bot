@@ -1,3 +1,20 @@
 {
-  "products": []
+  "products": [
+    {
+      "id": 2,
+      "name": "Ursa Nano Pro 2 Classic Brown",
+      "price": 150,
+      "category": "Одноразки",
+      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
+      "popularity": 8
+    },
+    {
+      "id": 1738013008771,
+      "name": "писька бобра",
+      "price": 9999999,
+      "category": "Люди",
+      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
+      "popularity": 0
+    }
+  ]
 }
