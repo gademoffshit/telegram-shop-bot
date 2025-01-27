@@ -133,21 +133,14 @@ function displayProducts(products) {
 
 // Добавление в корзину
 function addToCart(product) {
-    cart.push(product);
+    const existingProduct = cart.find(item => item.id === product.id);
+    if (existingProduct) {
+        existingProduct.quantity = (existingProduct.quantity || 1) + 1;
+    } else {
+        cart.push({...product, quantity: 1});
+    }
     updateCartCounter();
-    
-    tg.showPopup({
-        title: 'Товар добавлен',
-        message: `${product.name} добавлен в корзину`,
-        buttons: [
-            {id: "view_cart", type: "default", text: "Просмотреть корзину"},
-            {id: "continue", type: "cancel", text: "Продолжить покупки"}
-        ]
-    }, (buttonId) => {
-        if (buttonId === 'view_cart') {
-            showCart();
-        }
-    });
+    showCart();
 }
 
 // Обновление счетчика корзины
@@ -163,18 +156,24 @@ function updateCartCounter() {
 
 // Показ корзины
 function showCart() {
-    if (cart.length === 0) {
-        tg.showPopup({
-            title: 'Корзина пуста',
-            message: 'Добавьте товары в корзину',
-            buttons: [{id: "ok", type: "cancel", text: "OK"}]
-        });
-        return;
-    }
+    const mainApp = document.querySelector('.app');
+    mainApp.style.display = 'none';
 
-    const cartPopup = document.createElement('div');
-    cartPopup.className = 'cart-popup';
-    
+    // Создаем контейнер корзины
+    const cartContainer = document.createElement('div');
+    cartContainer.className = 'cart-container';
+
+    // Добавляем шапку
+    const cartHeader = document.createElement('div');
+    cartHeader.className = 'cart-header';
+    cartHeader.innerHTML = `
+        <button class="back-button">
+            <i class="material-icons">arrow_back</i>
+        </button>
+        <div class="cart-title">CHASER | HOTSPOT</div>
+    `;
+    cartContainer.appendChild(cartHeader);
+
     // Добавляем товары
     cart.forEach((item, index) => {
         const cartItem = document.createElement('div');
@@ -183,52 +182,78 @@ function showCart() {
             <img src="${item.image}" alt="${item.name}" class="cart-item-image">
             <div class="cart-item-info">
                 <div class="cart-item-title">${item.name}</div>
-                <div class="cart-item-price">${item.price} zł</div>
+                <div class="cart-item-price">Роздрібна ціна ${item.price}zł</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn minus" data-index="${index}">-</button>
+                    <span class="quantity-value">${item.quantity || 1}</span>
+                    <button class="quantity-btn plus" data-index="${index}">+</button>
+                </div>
             </div>
-            <button class="cart-item-remove" data-index="${index}">
-                <i class="material-icons">close</i>
-            </button>
         `;
-        cartPopup.appendChild(cartItem);
+        cartContainer.appendChild(cartItem);
     });
 
-    // Добавляем итоговую сумму
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    const totalElement = document.createElement('div');
-    totalElement.className = 'cart-total';
-    totalElement.innerHTML = `
-        <span>Итого:</span>
-        <span>${total} zł</span>
+    // Добавляем итог
+    const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+    const cartTotal = document.createElement('div');
+    cartTotal.className = 'cart-total';
+    cartTotal.innerHTML = `
+        <div class="total-row">
+            <span>Сумма</span>
+            <span>${total.toFixed(2)} zł</span>
+        </div>
+        <button class="checkout-button">Оформити замовлення</button>
     `;
-    cartPopup.appendChild(totalElement);
+    cartContainer.appendChild(cartTotal);
 
-    // Показываем попап
-    tg.showPopup({
-        title: 'Корзина',
-        message: cartPopup.outerHTML,
-        buttons: [
-            {id: "checkout", type: "default", text: "Оформить заказ"},
-            {id: "clear", type: "destructive", text: "Очистить корзину"},
-            {id: "close", type: "cancel", text: "Закрыть"}
-        ]
-    }, (buttonId) => {
-        if (buttonId === 'checkout') {
-            checkout();
-        } else if (buttonId === 'clear') {
-            clearCart();
-        }
+    // Добавляем корзину на страницу
+    document.body.appendChild(cartContainer);
+
+    // Обработчики событий
+    const backButton = cartContainer.querySelector('.back-button');
+    backButton.addEventListener('click', () => {
+        document.body.removeChild(cartContainer);
+        mainApp.style.display = 'block';
     });
 
-    // Добавляем обработчики для кнопок удаления
-    setTimeout(() => {
-        const removeButtons = document.querySelectorAll('.cart-item-remove');
-        removeButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                const index = parseInt(button.dataset.index);
-                removeFromCart(index);
-            });
+    const checkoutButton = cartContainer.querySelector('.checkout-button');
+    checkoutButton.addEventListener('click', () => {
+        checkout();
+        document.body.removeChild(cartContainer);
+        mainApp.style.display = 'block';
+    });
+
+    // Обработчики кнопок количества
+    const minusButtons = cartContainer.querySelectorAll('.minus');
+    const plusButtons = cartContainer.querySelectorAll('.plus');
+
+    minusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const index = button.dataset.index;
+            if (!cart[index].quantity || cart[index].quantity === 1) {
+                cart.splice(index, 1);
+                if (cart.length === 0) {
+                    document.body.removeChild(cartContainer);
+                    mainApp.style.display = 'block';
+                } else {
+                    showCart(); // Перерисовываем корзину
+                }
+            } else {
+                cart[index].quantity--;
+                showCart(); // Перерисовываем корзину
+            }
+            updateCartCounter();
         });
-    }, 100);
+    });
+
+    plusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const index = button.dataset.index;
+            cart[index].quantity = (cart[index].quantity || 1) + 1;
+            showCart(); // Перерисовываем корзину
+            updateCartCounter();
+        });
+    });
 }
 
 // Удаление товара из корзины
@@ -251,7 +276,7 @@ function clearCart() {
 function checkout() {
     const orderData = {
         items: cart,
-        total: cart.reduce((sum, item) => sum + item.price, 0)
+        total: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
     };
     
     tg.sendData(JSON.stringify(orderData));
