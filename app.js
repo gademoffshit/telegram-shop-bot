@@ -5,14 +5,24 @@ tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#8774e1';
 
-// Загрузка товаров из localStorage
-function getProducts() {
-    const products = localStorage.getItem('products');
-    return products ? JSON.parse(products) : [];
+// Загрузка товаров с GitHub
+async function getProducts() {
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/gademoffshit/telegram-shop-bot/main/products.json');
+        const data = await response.json();
+        return data.products;
+    } catch (error) {
+        console.error('Error loading products:', error);
+        return [];
+    }
 }
 
 // Получаем актуальный список товаров
-let products = getProducts();
+let products = [];
+getProducts().then(loadedProducts => {
+    products = loadedProducts;
+    filterAndDisplayProducts();
+});
 
 // DOM элементы
 const productsGrid = document.querySelector('.products-grid');
@@ -287,6 +297,3 @@ function checkout() {
         document.querySelector('.app').style.display = 'block';
     }
 }
-
-// Инициализация
-filterAndDisplayProducts();
