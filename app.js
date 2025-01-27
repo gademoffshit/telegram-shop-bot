@@ -13,8 +13,19 @@ async function getProducts() {
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch products');
+        }
+
         const file = await response.json();
-        const content = JSON.parse(atob(file.content));
+        // Используем TextDecoder для правильной декодировки UTF-8
+        const decoder = new TextDecoder();
+        const content = JSON.parse(
+            decoder.decode(
+                Uint8Array.from(atob(file.content), c => c.charCodeAt(0))
+            )
+        );
         
         // Декодируем названия и категории
         content.products = content.products.map(product => ({
