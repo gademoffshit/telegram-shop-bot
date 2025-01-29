@@ -1,28 +1,20 @@
 {
-  "products": [
-    {
-      "id": 1,
-      "name": "Ursa Baby Pro Gunmetal Espresso",
-      "price": 140,
-      "category": "Одноразки",
-      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
-      "popularity": 10
-    },
-    {
-      "id": 2,
-      "name": "Ursa Nano Pro 2 Classic Brown",
-      "price": 150,
-      "category": "Одноразки",
-      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
-      "popularity": 8
-    },
-    {
-      "id": 3,
-      "name": "мама пизды даст",
-      "price": 999999,
-      "category": "Одноразки",
-      "image": "https://i.pinimg.com/736x/5b/f1/24/5bf124ecc8c996197ef6765b45affe2d.jpg",
-      "popularity": 0
-    }
-  ]
+    "products": [
+        {
+            "id": 1,
+            "name": "Ursa Baby Pro Gunmetal Espresso",
+            "price": 140,
+            "category": "Одноразки",
+            "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
+            "popularity": 10
+        },
+        {
+            "id": 2,
+            "name": "Ursa Nano Pro 2 Classic Brown",
+            "price": 150,
+            "category": "Одноразки",
+            "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
+            "popularity": 8
+        }
+    ]
 }
