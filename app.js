@@ -671,6 +671,7 @@ function sendOrderDetailsToAdmin(file, paymentMethod) {
 
 function sendReceiptToAdmin(file, adminChatId, botToken) {
     const formData = new FormData();
+    formData.append('chat_id', adminChatId);
     formData.append('document', file);
     
     fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, {
@@ -695,6 +696,77 @@ function getOrderData() {
         items: cart,
         total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
     };
+}
+
+function notifyUserOrderProcessing(userChatId, botToken) {
+    const message = 'Ваш заказ принят и находится в обработке.';
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: userChatId,
+            text: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('User notified successfully');
+        } else {
+            console.error('Error notifying user:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error notifying user:', error);
+    });
+}
+
+function sendOrderDetailsToAdmin(file, paymentMethod) {
+    const orderData = getOrderData();
+    const userDetails = savedUserDetails;
+    const adminChatId = '2122584931';
+    const botToken = '7257026267:AAGz3982jhY4V7SgndGosd7a6m1T0ccJ81Q';
+    
+    const message = `Новый заказ:\n\n` +
+                    `Имя: ${userDetails.name}\n` +
+                    `Фамилия: ${userDetails.surname}\n` +
+                    `Телефон: ${userDetails.phone}\n` +
+                    `Email: ${userDetails.email}\n` +
+                    `Telegram: ${userDetails.telegram}\n` +
+                    `Адреса доставки: ${userDetails.address}\n` +
+                    `Метод оплати: ${paymentMethod}\n` +
+                    `\nТовары: ${orderData.items.map(item => item.name).join(', ')}\n` +
+                    `Сумма: ${orderData.total.toFixed(2)} zł`;
+    
+    console.log('User Details:', userDetails);
+    console.log('Order Data:', orderData);
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: adminChatId,
+            text: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('Order details sent successfully');
+            sendReceiptToAdmin(file, adminChatId, botToken);
+            notifyUserOrderProcessing(userDetails.telegram, botToken); // Notify user
+        } else {
+            console.error('Error sending order details:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending order details:', error);
+    });
 }
 
 // Функция для показа уведомлений
