@@ -277,7 +277,7 @@ function showCart() {
     // Добавляем обработчики для кнопок количества
     cartContainer.querySelectorAll('.quantity-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = e.target.dataset.id;
+            const id = parseInt(e.target.dataset.id, 10);
             console.log('Product ID:', id);
             const isPlus = e.target.classList.contains('plus');
             const product = cart.find(item => item.id === id);
@@ -602,12 +602,12 @@ function handleCategoryClick(category) {
 
 // Функция для скрытия всех контейнеров
 function hideAllContainers() {
+    document.querySelectorAll('.checkout-container, .payment-container').forEach(container => container.remove());
     document.querySelector('.app').style.display = 'none';
     document.querySelector('.cart-container')?.remove();
     document.querySelector('.catalog-container')?.remove();
     document.querySelector('.account-container')?.remove();
     document.querySelector('.product-details-container')?.remove();
-    document.querySelector('.checkout-container')?.remove();
 }
 
 // Функции для страниц
@@ -1187,8 +1187,11 @@ document.head.appendChild(noProductsStyle);
 function checkout() {
     hideAllContainers();
     
+    const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+    
     const checkoutContainer = document.createElement('div');
     checkoutContainer.className = 'checkout-container';
+    
     checkoutContainer.innerHTML = `
         <div class="checkout-header">
             <button class="back-button">
@@ -1198,85 +1201,92 @@ function checkout() {
                 <i class="material-icons">home</i>
             </a>
         </div>
+        
         <h1>Оформлення замовлення</h1>
         
-        <form id="checkoutForm" class="checkout-form">
-            <div class="form-section">
-                <div class="section-header">
-                    <span class="section-number">1</span>
-                    <h2>Ваші контактні данні</h2>
-                </div>
-                
-                <div class="form-group">
-                    <label for="name">Ім'я</label>
-                    <input type="text" id="name" placeholder="Введіть ваше ім'я">
-                    <span class="error-message" id="nameError"></span>
-                </div>
-                
-                <div class="form-group">
-                    <label for="surname">Прізвище</label>
-                    <input type="text" id="surname" placeholder="Введіть ваше прізвище">
-                    <span class="error-message" id="surnameError"></span>
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Номер телефону</label>
-                    <input type="tel" id="phone" placeholder="+48XXXXXXXXX">
-                    <span class="error-message" id="phoneError"></span>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Електронна пошта</label>
-                    <input type="email" id="email" placeholder="example@email.com">
-                    <span class="error-message" id="emailError"></span>
-                </div>
-                
-                <div class="form-group">
-                    <label for="telegram">Ваш нік у телеграмі</label>
-                    <input type="text" id="telegram" placeholder="@username">
-                    <span class="helper-text">Щоб у разі чого менеджер міг зв'язатися</span>
-                    <span class="error-message" id="telegramError"></span>
-                </div>
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2>Ваші контактні данні</h2>
             </div>
             
-            <div class="form-section">
-                <div class="section-header">
-                    <span class="section-number">2</span>
-                    <h2>Доставка</h2>
-                </div>
-                
-                <div class="delivery-options">
-                    <label class="radio-option">
-                        <input type="radio" name="delivery" value="inpost_parcel" checked>
-                        <span>InPost пачкомат</span>
-                    </label>
-                    
-                    <label class="radio-option">
-                        <input type="radio" name="delivery" value="inpost_courier">
-                        <span>InPost кур'єр</span>
-                    </label>
-                    
-                    <label class="radio-option">
-                        <input type="radio" name="delivery" value="international">
-                        <span>Доставка за кордон</span>
-                    </label>
-                </div>
-                
-                <button class="map-button" onclick="showMap()">
-                    <i class="material-icons">place</i>
-                    Обрати на мапі
-                </button>
-                
-                <div class="form-group">
-                    <label for="promo">Промокод</label>
-                    <input type="text" id="promo" placeholder="Введіть промокод">
-                </div>
+            <div class="form-group">
+                <label for="name">Ім'я</label>
+                <input type="text" id="name" placeholder="Введіть ваше ім'я">
+                <span class="error-message" id="nameError"></span>
             </div>
             
-            <button class="checkout-form-button" onclick="validateAndProceed()">
-                ОФОРМИТИ ЗАМОВЛЕННЯ
+            <div class="form-group">
+                <label for="surname">Прізвище</label>
+                <input type="text" id="surname" placeholder="Введіть ваше прізвище">
+                <span class="error-message" id="surnameError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Номер телефону</label>
+                <input type="tel" id="phone" placeholder="+48XXXXXXXXX">
+                <span class="error-message" id="phoneError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Електронна пошта</label>
+                <input type="email" id="email" placeholder="example@email.com">
+                <span class="error-message" id="emailError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="telegram">Ваш нік у телеграмі</label>
+                <input type="text" id="telegram" placeholder="@username">
+                <span class="helper-text">Щоб у разі чого менеджер міг зв'язатися</span>
+                <span class="error-message" id="telegramError"></span>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2>Доставка</h2>
+            </div>
+            
+            <div class="delivery-options">
+                <label class="radio-option">
+                    <input type="radio" name="delivery" value="inpost_parcel" checked>
+                    <span>InPost пачкомат</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="delivery" value="inpost_courier">
+                    <span>InPost кур'єр</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="delivery" value="international">
+                    <span>Доставка за кордон</span>
+                </label>
+            </div>
+            
+            <button class="map-button" onclick="showMap()">
+                <i class="material-icons">place</i>
+                Обрати на мапі
             </button>
-        </form>
+            
+            <div class="form-group">
+                <label for="promo">Промокод</label>
+                <input type="text" id="promo" placeholder="Введіть промокод">
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2>Ітогова сума</h2>
+            </div>
+            <p class="total-amount">${total.toFixed(2)} zł</p>
+        </div>
+        
+        <button class="checkout-form-button" onclick="validateAndProceed()">
+            ОФОРМИТИ ЗАМОВЛЕННЯ
+        </button>
     `;
     
     // Обработчики кнопок
@@ -1295,100 +1305,113 @@ function checkout() {
 }
 
 function validateAndProceed() {
-    const form = document.getElementById('checkoutForm');
-    const inputs = form.querySelectorAll('input[required]');
+    const inputs = document.querySelectorAll('.checkout-container input');
     let isValid = true;
 
     inputs.forEach(input => {
-        if (!input.value) {
+        let valid = true;
+        if (input.id === 'name' || input.id === 'surname') {
+            valid = /^[A-Za-z]+$/.test(input.value);
+        } else if (input.id === 'phone') {
+            valid = /^\+48\d{0,9}$/.test(input.value);
+        } else if (input.id === 'email') {
+            valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
+        } else if (input.id === 'telegram') {
+            valid = input.value.trim() !== '';
+        }
+
+        if (!valid) {
             input.classList.add('invalid');
-            input.nextElementSibling.style.display = 'block';
             isValid = false;
+        } else {
+            input.classList.remove('invalid');
         }
     });
 
     if (isValid) {
         showPaymentMethods();
+    } else {
+        showNotification('Будь ласка, заповніть усі обов’язкові поля правильно.');
     }
 }
 
 function showPaymentMethods() {
-    hideAllContainers();
+    hideAllContainers(); // Скрываем все контейнеры
     
     const paymentContainer = document.createElement('div');
     paymentContainer.className = 'payment-container';
+    
     paymentContainer.innerHTML = `
         <div class="payment-header">
             <button class="back-button">
                 <i class="material-icons">arrow_back</i>
             </button>
+            <h1>Оберіть оплату</h1>
         </div>
-        <h2>Оберіть оплату</h2>
         
-        <div class="payment-methods">
-            <label class="payment-option">
+        <div class="payment-options">
+            <label class="radio-option">
                 <input type="radio" name="payment" value="monobank">
                 <span>Monobank</span>
             </label>
-            
-            <label class="payment-option">
+            <label class="radio-option">
                 <input type="radio" name="payment" value="blik">
                 <span>Blik</span>
             </label>
-            
-            <label class="payment-option">
+            <label class="radio-option">
                 <input type="radio" name="payment" value="crypto">
                 <span>Crypto trc-20</span>
             </label>
         </div>
-
-        <div class="payment-details">
-            <p>Після оплати, надішліть підтвердження оплати (pdf)</p>
+        
+        <div class="upload-section">
+            <label for="payment-proof">Після оплати, надішліть підтвердження оплати (pdf)</label>
+            <input type="file" id="payment-proof" accept="application/pdf">
+            <button class="upload-button" onclick="uploadPaymentProof()">Завантажити</button>
         </div>
     `;
-
-    // Обработчики для методов оплаты
-    const paymentMethods = paymentContainer.querySelectorAll('input[name="payment"]');
-    paymentMethods.forEach(method => {
-        method.addEventListener('change', (e) => {
-            showPaymentDetails(e.target.value);
-        });
-    });
-
-    // Обработчик для кнопки "Назад"
+    
     const backButton = paymentContainer.querySelector('.back-button');
     backButton.addEventListener('click', () => {
-        document.querySelector('.payment-container').remove();
         checkout();
     });
     
     document.body.appendChild(paymentContainer);
 }
 
-function showPaymentDetails(method) {
-    const detailsContainer = document.querySelector('.payment-details');
-    let details = '';
-    
-    switch(method) {
-        case 'monobank':
-            details = `
-                <h3>Monobank</h3>
-                <p>Номер карти: XXXX XXXX XXXX XXXX</p>
-            `;
-            break;
-        case 'blik':
-            details = `
-                <h3>Blik</h3>
-                <p>Код BLIK: XXXXXX</p>
-            `;
-            break;
-        case 'crypto':
-            details = `
-                <h3>Crypto TRC-20</h3>
-                <p>Адреса: XXXXXXXXXXXXXXXXXXXXX</p>
-            `;
-            break;
+function uploadPaymentProof() {
+    const fileInput = document.getElementById('payment-proof');
+    const file = fileInput.files[0];
+    if (!file) {
+        showNotification('Будь ласка, оберіть файл для завантаження.');
+        return;
     }
     
-    detailsContainer.innerHTML = details + '<p>Після оплати, надішліть підтвердження оплати (pdf)</p>';
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('orderData', JSON.stringify(getOrderData()));
+    
+    fetch('/upload-payment-proof', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Файл успішно завантажено.');
+        } else {
+            showNotification('Помилка при завантаженні файлу.');
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading file:', error);
+        showNotification('Помилка при завантаженні файлу.');
+    });
+}
+
+function getOrderData() {
+    return {
+        items: cart,
+        total: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
+    };
 }
