@@ -154,25 +154,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .orders-section {
-            margin-top: 20px;
-        }
-
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .orders-table th, .orders-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        .orders-table th {
-            background-color: #f0f0f0;
-        }
     </style>
 </head>
 <body>
@@ -222,25 +203,6 @@
             </div>
 
             <div class="products-list" id="productsList"></div>
-
-            <div class="orders-section">
-                <h2>Замовлення</h2>
-                <table class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Дата</th>
-                            <th>Клієнт</th>
-                            <th>Сума</th>
-                            <th>Оплата</th>
-                            <th>Дії</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-list">
-                        <!-- Заказы будут загружены сюда -->
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 
@@ -274,7 +236,6 @@
                     document.getElementById('authForm').style.display = 'none';
                     document.getElementById('adminContent').style.display = 'block';
                     displayProducts();
-                    loadOrders();
                 } else {
                     throw new Error('Неверный токен');
                 }
@@ -484,32 +445,6 @@
                 await saveProducts(products);
                 await displayProducts();
             }
-        }
-
-        // Загрузка заказов
-        async function loadOrders() {
-            const response = await fetch('/api/orders');
-            const orders = await response.json();
-            const ordersList = document.getElementById('orders-list');
-            ordersList.innerHTML = '';
-            orders.forEach(order => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${order.id}</td>
-                    <td>${new Date(order.date).toLocaleDateString()}</td>
-                    <td>${order.clientName}</td>
-                    <td>${order.total.toFixed(2)} zł</td>
-                    <td><a href="${order.paymentProofUrl}" target="_blank">PDF</a></td>
-                    <td><button onclick="viewOrder(${order.id})">Деталі</button></td>
-                `;
-                ordersList.appendChild(row);
-            });
-        }
-
-        // Просмотр заказа
-        function viewOrder(orderId) {
-            // Реализация отображения деталей заказа
-            alert('Деталі замовлення: ' + orderId);
         }
     </script>
 </body>

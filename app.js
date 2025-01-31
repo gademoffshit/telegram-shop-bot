@@ -220,9 +220,11 @@ function showCart() {
         `;
         
         const backButton = cartContainer.querySelector('.back-button');
-        backButton.addEventListener('click', () => {
-            showHome();
-        });
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                showHome();
+            });
+        }
         
         document.body.appendChild(cartContainer);
         return;
@@ -301,9 +303,11 @@ function showCart() {
     
     // Обработчик для кнопки "Назад"
     const backButton = cartContainer.querySelector('.back-button');
-    backButton.addEventListener('click', () => {
-        showHome();
-    });
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            showHome();
+        });
+    }
     
     document.body.appendChild(cartContainer);
 }
@@ -338,18 +342,359 @@ function updateCartCounter() {
 
 // Оформление заказа
 function checkout() {
-    const orderData = {
-        items: cart,
-        total: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
-    };
-    tg.sendData(JSON.stringify(orderData));
-    cart = [];
-    updateCartCounter();
-    const cartContainer = document.querySelector('.cart-container');
-    if (cartContainer) {
-        document.body.removeChild(cartContainer);
-        document.querySelector('.app').style.display = 'block';
+    hideAllContainers();
+    
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    
+    const checkoutContainer = document.createElement('div');
+    checkoutContainer.className = 'checkout-container';
+    
+    checkoutContainer.innerHTML = `
+        <div class="checkout-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Оформлення замовлення</h1>
+        </div>
+        
+        <h1>Оформлення замовлення</h1>
+        
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2>Ваші контактні данні</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Ім'я</label>
+                <input type="text" id="name" placeholder="Введіть ваше ім'я">
+                <span class="error-message" id="nameError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="surname">Прізвище</label>
+                <input type="text" id="surname" placeholder="Введіть ваше прізвище">
+                <span class="error-message" id="surnameError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Номер телефону</label>
+                <input type="tel" id="phone" placeholder="+48XXXXXXXXX">
+                <span class="error-message" id="phoneError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Електронна пошта</label>
+                <input type="email" id="email" placeholder="example@email.com">
+                <span class="error-message" id="emailError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="telegram">Ваш нік у телеграмі</label>
+                <input type="text" id="telegram" placeholder="@username">
+                <span class="helper-text">Щоб у разі чого менеджер міг зв'язатися</span>
+                <span class="error-message" id="telegramError"></span>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2>Доставка</h2>
+            </div>
+            
+            <div class="delivery-options">
+                <label class="radio-option">
+                    <input type="radio" name="delivery" value="inpost_parcel" checked>
+                    <span>InPost пачкомат</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="delivery" value="inpost_courier">
+                    <span>InPost кур'єр</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="delivery" value="international">
+                    <span>Доставка за кордон</span>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Адреса доставки</label>
+                <input type="text" id="address" placeholder="Введіть адресу доставки">
+                <span class="error-message" id="addressError"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="promo">Промокод</label>
+                <input type="text" id="promo" placeholder="Введіть промокод">
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2>Ітогова сума</h2>
+            </div>
+            <p class="total-amount">${total.toFixed(2)} zł</p>
+        </div>
+        
+        <button class="checkout-form-button" onclick="validateAndProceed()">
+            ОФОРМИТИ ЗАМОВЛЕННЯ
+        </button>
+    `;
+    
+    // Обработчики кнопок
+    const backButton = checkoutContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            showCart();
+        });
     }
+    
+    const homeButton = checkoutContainer.querySelector('.home-button');
+    if (homeButton) {
+        homeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            showHome();
+        });
+    }
+    
+    document.body.appendChild(checkoutContainer);
+}
+
+let savedUserDetails = {};
+
+function validateAndProceed() {
+    const inputs = document.querySelectorAll('.checkout-container input');
+    let isValid = true;
+
+    inputs.forEach(input => {
+        let valid = true;
+        if (input.id === 'name' || input.id === 'surname') {
+            valid = /^[A-Za-z]+$/.test(input.value);
+        } else if (input.id === 'phone') {
+            valid = /^\+48\d{0,9}$/.test(input.value);
+        } else if (input.id === 'email') {
+            valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
+        } else if (input.id === 'telegram' || input.id === 'address') {
+            valid = input.value.trim() !== '';
+        }
+
+        if (!valid) {
+            input.classList.add('invalid');
+            isValid = false;
+        } else {
+            input.classList.remove('invalid');
+        }
+    });
+
+    if (isValid) {
+        savedUserDetails = getUserDetails(); // Save user details
+        showPaymentMethods();
+    } else {
+        showNotification('Будь ласка, заповніть усі обов’язкові поля правильно.');
+    }
+}
+
+function getUserDetails() {
+    const name = document.getElementById('name')?.value.trim() || 'Не указано';
+    const surname = document.getElementById('surname')?.value.trim() || 'Не указано';
+    const phone = document.getElementById('phone')?.value.trim() || 'Не указано';
+    const email = document.getElementById('email')?.value.trim() || 'Не указано';
+    const telegram = document.getElementById('telegram')?.value.trim() || 'Не указано';
+    const address = document.getElementById('address')?.value.trim() || 'Не указано';
+
+    return {
+        name,
+        surname,
+        phone,
+        email,
+        telegram,
+        address
+    };
+}
+
+function sendOrderDetailsToAdmin(file, paymentMethod) {
+    const orderData = getOrderData();
+    const userDetails = savedUserDetails; // Use saved user details
+    const adminChatId = '2122584931';
+    const botToken = '7257026267:AAGz3982jhY4V7SgndGosd7a6m1T0ccJ81Q';
+    
+    const message = `Новый заказ:\n\n` +
+                    `Имя: ${userDetails.name}\n` +
+                    `Фамилия: ${userDetails.surname}\n` +
+                    `Телефон: ${userDetails.phone}\n` +
+                    `Email: ${userDetails.email}\n` +
+                    `Telegram: ${userDetails.telegram}\n` +
+                    `Адреса доставки: ${userDetails.address}\n` +
+                    `Метод оплати: ${paymentMethod}\n` +
+                    `\nТовары: ${orderData.items.map(item => item.name).join(', ')}\n` +
+                    `Сумма: ${orderData.total.toFixed(2)} zł`;
+    
+    console.log('User Details:', userDetails);
+    console.log('Order Data:', orderData);
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: adminChatId,
+            text: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('Order details sent successfully');
+            sendReceiptToAdmin(file, adminChatId, botToken);
+        } else {
+            console.error('Error sending order details:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending order details:', error);
+    });
+}
+
+function showPaymentMethods() {
+    hideAllContainers(); // Скрываем все контейнеры
+    
+    const paymentContainer = document.createElement('div');
+    paymentContainer.className = 'payment-container';
+    
+    paymentContainer.innerHTML = `
+        <div class="payment-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Оберіть оплату</h1>
+        </div>
+        
+        <div class="payment-options">
+            <label class="radio-option">
+                <input type="radio" name="payment" value="monobank">
+                <span>Monobank</span>
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="payment" value="blik">
+                <span>Blik</span>
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="payment" value="crypto">
+                <span>Crypto trc-20</span>
+            </label>
+        </div>
+        
+        <div class="upload-section">
+            <label for="payment-proof">Після оплати, надішліть підтвердження оплати (pdf)</label>
+            <input type="file" id="payment-proof" accept="application/pdf">
+            <button class="upload-button" onclick="uploadPaymentProof()">
+                Завантажити
+            </button>
+        </div>
+    `;
+    
+    const backButton = paymentContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            checkout();
+        });
+    }
+    
+    document.body.appendChild(paymentContainer);
+}
+
+function uploadPaymentProof() {
+    const fileInput = document.getElementById('payment-proof');
+    const file = fileInput.files[0];
+    if (!file) {
+        showNotification('Будь ласка, оберіть файл для завантаження.');
+        return;
+    }
+    
+    const selectedPaymentMethod = document.querySelector('input[name="payment"]:checked');
+    if (!selectedPaymentMethod) {
+        showNotification('Будь ласка, оберіть метод оплати.');
+        return;
+    }
+
+    sendOrderDetailsToAdmin(file, selectedPaymentMethod.value);
+}
+
+function sendOrderDetailsToAdmin(file, paymentMethod) {
+    const orderData = getOrderData();
+    const userDetails = savedUserDetails; // Use saved user details
+    const adminChatId = '2122584931';
+    const botToken = '7257026267:AAGz3982jhY4V7SgndGosd7a6m1T0ccJ81Q';
+    
+    const message = `Новый заказ:\n\n` +
+                    `Имя: ${userDetails.name}\n` +
+                    `Фамилия: ${userDetails.surname}\n` +
+                    `Телефон: ${userDetails.phone}\n` +
+                    `Email: ${userDetails.email}\n` +
+                    `Telegram: ${userDetails.telegram}\n` +
+                    `Адреса доставки: ${userDetails.address}\n` +
+                    `Метод оплати: ${paymentMethod}\n` +
+                    `\nТовары: ${orderData.items.map(item => item.name).join(', ')}\n` +
+                    `Сумма: ${orderData.total.toFixed(2)} zł`;
+    
+    console.log('User Details:', userDetails);
+    console.log('Order Data:', orderData);
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: adminChatId,
+            text: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('Order details sent successfully');
+            sendReceiptToAdmin(file, adminChatId, botToken);
+        } else {
+            console.error('Error sending order details:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending order details:', error);
+    });
+}
+
+function sendReceiptToAdmin(file, adminChatId, botToken) {
+    const formData = new FormData();
+    formData.append('document', file);
+    
+    fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.ok) {
+            console.log('Receipt sent successfully');
+        } else {
+            console.error('Error sending receipt:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending receipt:', error);
+    });
+}
+
+function getOrderData() {
+    return {
+        items: cart,
+        total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    };
 }
 
 // Функция для показа уведомлений
@@ -409,16 +754,20 @@ function showProductDetails(product) {
     document.body.appendChild(detailsContainer);
     
     const backButton = document.getElementById('detailsBackButton');
-    backButton.onclick = () => {
-        detailsContainer.remove();
-        showHome();
-    };
+    if (backButton) {
+        backButton.onclick = () => {
+            detailsContainer.remove();
+            showHome();
+        };
+    }
     
     const addToCartButton = detailsContainer.querySelector('.add-to-cart-button');
-    addToCartButton.onclick = () => {
-        addToCart(product);
-        showNotification('Товар додано в корзину');
-    };
+    if (addToCartButton) {
+        addToCartButton.onclick = () => {
+            addToCart(product);
+            showNotification('Товар додано в корзину');
+        };
+    }
 }
 
 // Обработчик для категорий в каталоге
@@ -508,21 +857,27 @@ function showCatalog() {
 
         // Обработчик для кнопки "Назад"
         const backButton = catalogContainer.querySelector('.back-button');
-        backButton.addEventListener('click', () => {
-            showHome();
-        });
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                showHome();
+            });
+        }
 
         // Обработчик для кнопки "Очистить"
         const clearButton = catalogContainer.querySelector('.clear-button');
-        clearButton.addEventListener('click', () => {
-            currentCategory = null;
-            showNotification('Фільтри очищені');
-            showHome();
-        });
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                currentCategory = null;
+                showNotification('Фільтри очищені');
+                showHome();
+            });
+        }
 
         // Обработчик для кнопки "Показати"
         const showButton = catalogContainer.querySelector('.show-products-button');
-        showButton.addEventListener('click', handleShowProducts);
+        if (showButton) {
+            showButton.addEventListener('click', handleShowProducts);
+        }
         
         document.body.appendChild(catalogContainer);
     }
@@ -595,7 +950,546 @@ function handleCategoryClick(category) {
     catalogContainer.innerHTML = catalogHTML;
     
     const backButton = catalogContainer.querySelector('.back-button');
-    backButton.addEventListener('click', showCatalog);
+    if (backButton) {
+        backButton.addEventListener('click', showCatalog);
+    }
+    
+    document.body.appendChild(catalogContainer);
+}
+
+// Обновляем функцию showCatalog
+function showCatalog() {
+    hideAllContainers();
+    
+    let catalogContainer = document.querySelector('.catalog-container');
+    if (!catalogContainer) {
+        catalogContainer = document.createElement('div');
+        catalogContainer.className = 'catalog-container';
+        catalogContainer.innerHTML = `
+            <div class="catalog-header">
+                <button class="back-button">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                <h2>Фільтр</h2>
+                <button class="clear-button">Очистити</button>
+            </div>
+            <div class="filter-count">: 0</div>
+            <div class="catalog-section">
+                <h3>Вибір категорії</h3>
+                <div class="category-list">
+                    <div class="category-item" data-category="Поди">
+                        <span>Поди</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Рідина">
+                        <span>Рідина</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Одноразки">
+                        <span>Одноразки</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Картриджи">
+                        <span>Картриджи</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Box">
+                        <span>Box</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Мерч">
+                        <span>Мерч</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Уголь">
+                        <span>Уголь</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Табак">
+                        <span>Табак</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                </div>
+            </div>
+            <div class="catalog-section">
+                <h3>Вартість</h3>
+                <div class="price-range">
+                    <input type="range" min="0" max="280" value="0" class="price-slider">
+                    <div class="price-inputs">
+                        <input type="number" value="0" min="0" max="280" class="price-input">
+                        <input type="number" value="280" min="0" max="280" class="price-input">
+                    </div>
+                </div>
+            </div>
+            <button class="show-products-button">
+                Показати
+                <span class="products-count">Знайдено товарів: 130</span>
+            </button>
+        `;
+        
+        // Добавляем обработчики для категорий
+        catalogContainer.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                handleCategoryClick(item.dataset.category);
+            });
+        });
+
+        // Обработчик для кнопки "Назад"
+        const backButton = catalogContainer.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Очистить"
+        const clearButton = catalogContainer.querySelector('.clear-button');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                currentCategory = null;
+                showNotification('Фільтри очищені');
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Показати"
+        const showButton = catalogContainer.querySelector('.show-products-button');
+        if (showButton) {
+            showButton.addEventListener('click', handleShowProducts);
+        }
+        
+        document.body.appendChild(catalogContainer);
+    }
+    
+    catalogContainer.style.display = 'block';
+}
+
+function handleCategoryClick(category) {
+    hideAllContainers();
+    
+    const subcategories = {
+        'Одноразки': [
+            'Elfbar 2000',
+            'Elfbar ri3000',
+            'Elfbar4000',
+            'Hqd click6000',
+            'Hqd7000',
+            'Vozol12000',
+            'Hqd15000',
+            'Elfbar bc18000',
+            'Vozol Star20000',
+            'Vozol Vista20000',
+            'Hqd20000',
+            'Elfbar gh23000',
+            'Elfbar raya 25000',
+            'Hqd Everest 25000',
+            'Elfbar ice king 30000'
+        ],
+        'Рідина': [
+            'Elfliq 30ml/5%',
+            'Chaser Black 30 ml/5%',
+            'Chaser Lux 30 ml/5%',
+            'Chaser Mix 30 ml/5%',
+            'Chaser F/P 30 ml/5%',
+            'Chaser New 30 ml/5%',
+            'Рик и морти 30ml/ 4.5%'
+        ],
+        'Картриджи': []
+    };
+    
+    const selectedSubcategories = subcategories[category] || [];
+    
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = 'catalog-container';
+    
+    let catalogHTML = `
+        <div class="catalog-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Категорія: ${category}</h1>
+        </div>
+        <div class="category-list">
+            <div class="category-item" onclick="showCatalog()">
+                <span>Всі категорії</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+    `;
+    
+    selectedSubcategories.forEach(subcategory => {
+        catalogHTML += `
+            <div class="category-item">
+                <span>${subcategory}</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+        `;
+    });
+    
+    catalogHTML += '</div>';
+    catalogContainer.innerHTML = catalogHTML;
+    
+    const backButton = catalogContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', showCatalog);
+    }
+    
+    document.body.appendChild(catalogContainer);
+}
+
+// Обновляем функцию showCatalog
+function showCatalog() {
+    hideAllContainers();
+    
+    let catalogContainer = document.querySelector('.catalog-container');
+    if (!catalogContainer) {
+        catalogContainer = document.createElement('div');
+        catalogContainer.className = 'catalog-container';
+        catalogContainer.innerHTML = `
+            <div class="catalog-header">
+                <button class="back-button">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                <h2>Фільтр</h2>
+                <button class="clear-button">Очистити</button>
+            </div>
+            <div class="filter-count">: 0</div>
+            <div class="catalog-section">
+                <h3>Вибір категорії</h3>
+                <div class="category-list">
+                    <div class="category-item" data-category="Поди">
+                        <span>Поди</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Рідина">
+                        <span>Рідина</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Одноразки">
+                        <span>Одноразки</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Картриджи">
+                        <span>Картриджи</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Box">
+                        <span>Box</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Мерч">
+                        <span>Мерч</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Уголь">
+                        <span>Уголь</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Табак">
+                        <span>Табак</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                </div>
+            </div>
+            <div class="catalog-section">
+                <h3>Вартість</h3>
+                <div class="price-range">
+                    <input type="range" min="0" max="280" value="0" class="price-slider">
+                    <div class="price-inputs">
+                        <input type="number" value="0" min="0" max="280" class="price-input">
+                        <input type="number" value="280" min="0" max="280" class="price-input">
+                    </div>
+                </div>
+            </div>
+            <button class="show-products-button">
+                Показати
+                <span class="products-count">Знайдено товарів: 130</span>
+            </button>
+        `;
+        
+        // Добавляем обработчики для категорий
+        catalogContainer.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                handleCategoryClick(item.dataset.category);
+            });
+        });
+
+        // Обработчик для кнопки "Назад"
+        const backButton = catalogContainer.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Очистить"
+        const clearButton = catalogContainer.querySelector('.clear-button');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                currentCategory = null;
+                showNotification('Фільтри очищені');
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Показати"
+        const showButton = catalogContainer.querySelector('.show-products-button');
+        if (showButton) {
+            showButton.addEventListener('click', handleShowProducts);
+        }
+        
+        document.body.appendChild(catalogContainer);
+    }
+    
+    catalogContainer.style.display = 'block';
+}
+
+function handleCategoryClick(category) {
+    hideAllContainers();
+    
+    const subcategories = {
+        'Одноразки': [
+            'Elfbar 2000',
+            'Elfbar ri3000',
+            'Elfbar4000',
+            'Hqd click6000',
+            'Hqd7000',
+            'Vozol12000',
+            'Hqd15000',
+            'Elfbar bc18000',
+            'Vozol Star20000',
+            'Vozol Vista20000',
+            'Hqd20000',
+            'Elfbar gh23000',
+            'Elfbar raya 25000',
+            'Hqd Everest 25000',
+            'Elfbar ice king 30000'
+        ],
+        'Рідина': [
+            'Elfliq 30ml/5%',
+            'Chaser Black 30 ml/5%',
+            'Chaser Lux 30 ml/5%',
+            'Chaser Mix 30 ml/5%',
+            'Chaser F/P 30 ml/5%',
+            'Chaser New 30 ml/5%',
+            'Рик и морти 30ml/ 4.5%'
+        ],
+        'Картриджи': []
+    };
+    
+    const selectedSubcategories = subcategories[category] || [];
+    
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = 'catalog-container';
+    
+    let catalogHTML = `
+        <div class="catalog-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Категорія: ${category}</h1>
+        </div>
+        <div class="category-list">
+            <div class="category-item" onclick="showCatalog()">
+                <span>Всі категорії</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+    `;
+    
+    selectedSubcategories.forEach(subcategory => {
+        catalogHTML += `
+            <div class="category-item">
+                <span>${subcategory}</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+        `;
+    });
+    
+    catalogHTML += '</div>';
+    catalogContainer.innerHTML = catalogHTML;
+    
+    const backButton = catalogContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', showCatalog);
+    }
+    
+    document.body.appendChild(catalogContainer);
+}
+
+// Обновляем функцию showCatalog
+function showCatalog() {
+    hideAllContainers();
+    
+    let catalogContainer = document.querySelector('.catalog-container');
+    if (!catalogContainer) {
+        catalogContainer = document.createElement('div');
+        catalogContainer.className = 'catalog-container';
+        catalogContainer.innerHTML = `
+            <div class="catalog-header">
+                <button class="back-button">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                <h2>Фільтр</h2>
+                <button class="clear-button">Очистити</button>
+            </div>
+            <div class="filter-count">: 0</div>
+            <div class="catalog-section">
+                <h3>Вибір категорії</h3>
+                <div class="category-list">
+                    <div class="category-item" data-category="Поди">
+                        <span>Поди</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Рідина">
+                        <span>Рідина</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Одноразки">
+                        <span>Одноразки</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Картриджи">
+                        <span>Картриджи</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Box">
+                        <span>Box</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Мерч">
+                        <span>Мерч</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Уголь">
+                        <span>Уголь</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Табак">
+                        <span>Табак</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                </div>
+            </div>
+            <div class="catalog-section">
+                <h3>Вартість</h3>
+                <div class="price-range">
+                    <input type="range" min="0" max="280" value="0" class="price-slider">
+                    <div class="price-inputs">
+                        <input type="number" value="0" min="0" max="280" class="price-input">
+                        <input type="number" value="280" min="0" max="280" class="price-input">
+                    </div>
+                </div>
+            </div>
+            <button class="show-products-button">
+                Показати
+                <span class="products-count">Знайдено товарів: 130</span>
+            </button>
+        `;
+        
+        // Добавляем обработчики для категорий
+        catalogContainer.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                handleCategoryClick(item.dataset.category);
+            });
+        });
+
+        // Обработчик для кнопки "Назад"
+        const backButton = catalogContainer.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Очистить"
+        const clearButton = catalogContainer.querySelector('.clear-button');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                currentCategory = null;
+                showNotification('Фільтри очищені');
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Показати"
+        const showButton = catalogContainer.querySelector('.show-products-button');
+        if (showButton) {
+            showButton.addEventListener('click', handleShowProducts);
+        }
+        
+        document.body.appendChild(catalogContainer);
+    }
+    
+    catalogContainer.style.display = 'block';
+}
+
+function handleCategoryClick(category) {
+    hideAllContainers();
+    
+    const subcategories = {
+        'Одноразки': [
+            'Elfbar 2000',
+            'Elfbar ri3000',
+            'Elfbar4000',
+            'Hqd click6000',
+            'Hqd7000',
+            'Vozol12000',
+            'Hqd15000',
+            'Elfbar bc18000',
+            'Vozol Star20000',
+            'Vozol Vista20000',
+            'Hqd20000',
+            'Elfbar gh23000',
+            'Elfbar raya 25000',
+            'Hqd Everest 25000',
+            'Elfbar ice king 30000'
+        ],
+        'Рідина': [
+            'Elfliq 30ml/5%',
+            'Chaser Black 30 ml/5%',
+            'Chaser Lux 30 ml/5%',
+            'Chaser Mix 30 ml/5%',
+            'Chaser F/P 30 ml/5%',
+            'Chaser New 30 ml/5%',
+            'Рик и морти 30ml/ 4.5%'
+        ],
+        'Картриджи': []
+    };
+    
+    const selectedSubcategories = subcategories[category] || [];
+    
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = 'catalog-container';
+    
+    let catalogHTML = `
+        <div class="catalog-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Категорія: ${category}</h1>
+        </div>
+        <div class="category-list">
+            <div class="category-item" onclick="showCatalog()">
+                <span>Всі категорії</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+    `;
+    
+    selectedSubcategories.forEach(subcategory => {
+        catalogHTML += `
+            <div class="category-item">
+                <span>${subcategory}</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+        `;
+    });
+    
+    catalogHTML += '</div>';
+    catalogContainer.innerHTML = catalogHTML;
+    
+    const backButton = catalogContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', showCatalog);
+    }
     
     document.body.appendChild(catalogContainer);
 }
@@ -1182,236 +2076,3 @@ noProductsStyle.textContent = `
     }
 `;
 document.head.appendChild(noProductsStyle);
-
-// Функция оформления заказа
-function checkout() {
-    hideAllContainers();
-    
-    const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
-    
-    const checkoutContainer = document.createElement('div');
-    checkoutContainer.className = 'checkout-container';
-    
-    checkoutContainer.innerHTML = `
-        <div class="checkout-header">
-            <button class="back-button">
-                <i class="material-icons">arrow_back</i>
-            </button>
-            <a class="home-button" href="#">
-                <i class="material-icons">home</i>
-            </a>
-        </div>
-        
-        <h1>Оформлення замовлення</h1>
-        
-        <div class="form-section">
-            <div class="section-header">
-                <div class="section-number">1</div>
-                <h2>Ваші контактні данні</h2>
-            </div>
-            
-            <div class="form-group">
-                <label for="name">Ім'я</label>
-                <input type="text" id="name" placeholder="Введіть ваше ім'я">
-                <span class="error-message" id="nameError"></span>
-            </div>
-            
-            <div class="form-group">
-                <label for="surname">Прізвище</label>
-                <input type="text" id="surname" placeholder="Введіть ваше прізвище">
-                <span class="error-message" id="surnameError"></span>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone">Номер телефону</label>
-                <input type="tel" id="phone" placeholder="+48XXXXXXXXX">
-                <span class="error-message" id="phoneError"></span>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Електронна пошта</label>
-                <input type="email" id="email" placeholder="example@email.com">
-                <span class="error-message" id="emailError"></span>
-            </div>
-            
-            <div class="form-group">
-                <label for="telegram">Ваш нік у телеграмі</label>
-                <input type="text" id="telegram" placeholder="@username">
-                <span class="helper-text">Щоб у разі чого менеджер міг зв'язатися</span>
-                <span class="error-message" id="telegramError"></span>
-            </div>
-        </div>
-        
-        <div class="form-section">
-            <div class="section-header">
-                <div class="section-number">2</div>
-                <h2>Доставка</h2>
-            </div>
-            
-            <div class="delivery-options">
-                <label class="radio-option">
-                    <input type="radio" name="delivery" value="inpost_parcel" checked>
-                    <span>InPost пачкомат</span>
-                </label>
-                
-                <label class="radio-option">
-                    <input type="radio" name="delivery" value="inpost_courier">
-                    <span>InPost кур'єр</span>
-                </label>
-                
-                <label class="radio-option">
-                    <input type="radio" name="delivery" value="international">
-                    <span>Доставка за кордон</span>
-                </label>
-            </div>
-            
-            <button class="map-button" onclick="showMap()">
-                <i class="material-icons">place</i>
-                Обрати на мапі
-            </button>
-            
-            <div class="form-group">
-                <label for="promo">Промокод</label>
-                <input type="text" id="promo" placeholder="Введіть промокод">
-            </div>
-        </div>
-        
-        <div class="form-section">
-            <div class="section-header">
-                <div class="section-number">3</div>
-                <h2>Ітогова сума</h2>
-            </div>
-            <p class="total-amount">${total.toFixed(2)} zł</p>
-        </div>
-        
-        <button class="checkout-form-button" onclick="validateAndProceed()">
-            ОФОРМИТИ ЗАМОВЛЕННЯ
-        </button>
-    `;
-    
-    // Обработчики кнопок
-    const backButton = checkoutContainer.querySelector('.back-button');
-    backButton.addEventListener('click', () => {
-        showCart();
-    });
-    
-    const homeButton = checkoutContainer.querySelector('.home-button');
-    homeButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        showHome();
-    });
-    
-    document.body.appendChild(checkoutContainer);
-}
-
-function validateAndProceed() {
-    const inputs = document.querySelectorAll('.checkout-container input');
-    let isValid = true;
-
-    inputs.forEach(input => {
-        let valid = true;
-        if (input.id === 'name' || input.id === 'surname') {
-            valid = /^[A-Za-z]+$/.test(input.value);
-        } else if (input.id === 'phone') {
-            valid = /^\+48\d{0,9}$/.test(input.value);
-        } else if (input.id === 'email') {
-            valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
-        } else if (input.id === 'telegram') {
-            valid = input.value.trim() !== '';
-        }
-
-        if (!valid) {
-            input.classList.add('invalid');
-            isValid = false;
-        } else {
-            input.classList.remove('invalid');
-        }
-    });
-
-    if (isValid) {
-        showPaymentMethods();
-    } else {
-        showNotification('Будь ласка, заповніть усі обов’язкові поля правильно.');
-    }
-}
-
-function showPaymentMethods() {
-    hideAllContainers(); // Скрываем все контейнеры
-    
-    const paymentContainer = document.createElement('div');
-    paymentContainer.className = 'payment-container';
-    
-    paymentContainer.innerHTML = `
-        <div class="payment-header">
-            <button class="back-button">
-                <i class="material-icons">arrow_back</i>
-            </button>
-            <h1>Оберіть оплату</h1>
-        </div>
-        
-        <div class="payment-options">
-            <label class="radio-option">
-                <input type="radio" name="payment" value="monobank">
-                <span>Monobank</span>
-            </label>
-            <label class="radio-option">
-                <input type="radio" name="payment" value="blik">
-                <span>Blik</span>
-            </label>
-            <label class="radio-option">
-                <input type="radio" name="payment" value="crypto">
-                <span>Crypto trc-20</span>
-            </label>
-        </div>
-        
-        <div class="upload-section">
-            <label for="payment-proof">Після оплати, надішліть підтвердження оплати (pdf)</label>
-            <input type="file" id="payment-proof" accept="application/pdf">
-            <button class="upload-button" onclick="uploadPaymentProof()">Завантажити</button>
-        </div>
-    `;
-    
-    const backButton = paymentContainer.querySelector('.back-button');
-    backButton.addEventListener('click', () => {
-        checkout();
-    });
-    
-    document.body.appendChild(paymentContainer);
-}
-
-function uploadPaymentProof() {
-    const fileInput = document.getElementById('payment-proof');
-    const file = fileInput.files[0];
-    if (!file) {
-        showNotification('Будь ласка, оберіть файл для завантаження.');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('orderData', JSON.stringify(getOrderData()));
-    
-    fetch('/upload-payment-proof', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Файл успішно завантажено.');
-        } else {
-            showNotification('Помилка при завантаженні файлу.');
-        }
-    })
-    .catch(error => {
-        console.error('Error uploading file:', error);
-        showNotification('Помилка при завантаженні файлу.');
-    });
-}
-
-function getOrderData() {
-    return {
-        items: cart,
-        total: cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
-    };
-}
