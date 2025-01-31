@@ -202,130 +202,110 @@ function displayProducts(products) {
 
 // Показ корзины
 function showCart() {
-    if (cart.length === 0) {
-        showNotification('Корзина пуста');
-        return;
-    }
-
     hideAllContainers();
     
-    // Удаляем существующий контейнер корзины, если он есть
-    const existingCart = document.querySelector('.cart-container');
-    if (existingCart) {
-        existingCart.remove();
+    if (cart.length === 0) {
+        const cartContainer = document.createElement('div');
+        cartContainer.className = 'cart-container';
+        cartContainer.innerHTML = `
+            <div class="cart-header">
+                <button class="back-button">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                <h1>CHASER | HOTSPOT</h1>
+            </div>
+            <div class="cart-empty">
+                <p>Ваша корзина пуста</p>
+            </div>
+        `;
+        
+        const backButton = cartContainer.querySelector('.back-button');
+        backButton.addEventListener('click', () => {
+            showHome();
+        });
+        
+        document.body.appendChild(cartContainer);
+        return;
     }
-
-    const mainApp = document.querySelector('.app');
-    mainApp.style.display = 'none';
-
+    
     const cartContainer = document.createElement('div');
     cartContainer.className = 'cart-container';
-
-    cartContainer.innerHTML = `
+    
+    let cartHTML = `
         <div class="cart-header">
-            <button class="back-button" id="cartBackButton">
+            <button class="back-button">
                 <i class="material-icons">arrow_back</i>
             </button>
-            <div class="cart-title">CHASER | HOTSPOT</div>
+            <h1>CHASER | HOTSPOT</h1>
         </div>
-        
         <div class="cart-items">
-            ${cart.map((item, index) => `
-                <div class="cart-item">
-                    <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-                    <div class="cart-item-info">
-                        <div class="cart-item-title">${item.name}</div>
-                        <div class="cart-item-price">Роздрібна ціна ${item.price}zł</div>
-                        <div class="quantity-controls">
-                            <button class="quantity-btn minus" data-index="${index}">-</button>
-                            <span class="quantity-value">${item.quantity || 1}</span>
-                            <button class="quantity-btn plus" data-index="${index}">+</button>
-                        </div>
+    `;
+    
+    let total = 0;
+    cart.forEach(item => {
+        total += item.price * item.quantity;
+        cartHTML += `
+            <div class="cart-item">
+                <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                <div class="cart-item-info">
+                    <h3 class="cart-item-title">${item.name}</h3>
+                    <p class="cart-item-price">Роздрібна ціна ${item.price}zł</p>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn plus" data-id="${item.id}">+</button>
                     </div>
                 </div>
-            `).join('')}
+            </div>
+        `;
+    });
+    
+    cartHTML += `
         </div>
-
         <div class="cart-total">
             <div class="total-row">
-                <span>Сумма</span>
-                <span>${cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0).toFixed(2)} zł</span>
+                <span>Сумма ${total.toFixed(2)} zł</span>
             </div>
-            <button class="checkout-button">ОФОРМИТИ ЗАМОВЛЕННЯ</button>
         </div>
+        <button class="checkout-button" onclick="checkout()">
+            ОФОРМИТИ ЗАМОВЛЕННЯ
+        </button>
     `;
-
-    document.body.appendChild(cartContainer);
-
-    function closeCart() {
-        const cart = document.querySelector('.cart-container');
-        if (cart) {
-            cart.remove();
-        }
-        mainApp.style.display = 'block';
-    }
-
-    // Обработчик кнопки "назад"
-    const backButton = document.getElementById('cartBackButton');
-    if (backButton) {
-        backButton.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            closeCart();
-        };
-    }
-
-    // Добавляем обработчик клавиши Escape
-    function handleEscape(e) {
-        if (e.key === 'Escape') {
-            closeCart();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    }
-    document.addEventListener('keydown', handleEscape);
-
-    // Обработчики кнопок количества
-    const minusButtons = cartContainer.querySelectorAll('.minus');
-    const plusButtons = cartContainer.querySelectorAll('.plus');
-
-    minusButtons.forEach(button => {
-        button.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const index = parseInt(button.dataset.index);
-            if (!cart[index].quantity || cart[index].quantity === 1) {
-                cart.splice(index, 1);
-                updateCartCounter();
-                if (cart.length === 0) {
-                    closeCart();
+    
+    cartContainer.innerHTML = cartHTML;
+    
+    // Добавляем обработчики для кнопок количества
+    cartContainer.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.dataset.id;
+            console.log('Product ID:', id);
+            const isPlus = e.target.classList.contains('plus');
+            const product = cart.find(item => item.id === id);
+            console.log('Product found:', product);
+            if (product) {
+                if (isPlus) {
+                    product.quantity += 1;
                 } else {
-                    showCart();
+                    product.quantity -= 1;
+                    if (product.quantity <= 0) {
+                        const index = cart.indexOf(product);
+                        cart.splice(index, 1);
+                    }
                 }
-            } else {
-                cart[index].quantity--;
-                showCart();
+                console.log('Updated quantity:', product.quantity);
                 updateCartCounter();
+                showCart(); // Обновляем отображение корзины
             }
-        };
+        });
     });
-
-    plusButtons.forEach(button => {
-        button.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const index = parseInt(button.dataset.index);
-            cart[index].quantity = (cart[index].quantity || 1) + 1;
-            showCart();
-            updateCartCounter();
-        };
+    
+    // Обработчик для кнопки "Назад"
+    const backButton = cartContainer.querySelector('.back-button');
+    backButton.addEventListener('click', () => {
+        showHome();
     });
-
-    const checkoutButton = cartContainer.querySelector('.checkout-button');
-    checkoutButton.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        checkout();
-    };
+    
+    document.body.appendChild(cartContainer);
 }
 
 // Добавление в корзину
@@ -395,71 +375,50 @@ function showNotification(message) {
 function showProductDetails(product) {
     hideAllContainers();
     
-    let detailsContainer = document.querySelector('.product-details');
-    if (!detailsContainer) {
-        detailsContainer = document.createElement('div');
-        detailsContainer.className = 'product-details';
-    }
-    
+    const detailsContainer = document.createElement('div');
+    detailsContainer.className = 'product-details-container';
     detailsContainer.innerHTML = `
-        <div class="details-header">
-            <button class="back-button">
+        <div class="product-details-header">
+            <button class="back-button" id="detailsBackButton">
                 <i class="material-icons">arrow_back</i>
             </button>
             <h2>Детали</h2>
         </div>
-        
-        <div class="details-content">
-            <img src="${product.image}" alt="${product.name}" class="product-image-large">
-            
-            <div class="product-price-large">${product.price} zł</div>
-            <h1 class="product-name-large">${product.name}</h1>
-            
-            ${product.available === false ? '<div class="availability-badge">Немає у наявності</div>' : ''}
-            
-            <div class="details-section">
-                <h3>Характеристики</h3>
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Об'єм:</div>
-                        <div class="detail-value">${product.volume || 'N/A'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Міцність:</div>
-                        <div class="detail-value">${product.strength || 'N/A'}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Виробник:</div>
-                        <div class="detail-value">${product.manufacturer || 'N/A'}</div>
-                    </div>
-                </div>
+        <div class="product-details">
+            <h1>${product.price} zł</h1>
+            <h3>${product.name}</h3>
+            <div class="availability ${product.inStock ? 'in-stock' : 'out-of-stock'}">
+                ${product.inStock ? 'В наявностi' : 'Немає у наявності'}
             </div>
-            
-            <div class="details-section">
-                <h3>Опис</h3>
-                <p class="product-description">${product.description || 'Опис недоступний'}</p>
+            <div class="product-characteristics">
+                <h4>Характеристики</h4>
+                <ul>
+                    <li>Об'єм: ${product.volume || 'N/A'}</li>
+                    <li>Міцність: ${product.strength || 'N/A'}</li>
+                    <li>Виробник: ${product.manufacturer || 'N/A'}</li>
+                </ul>
             </div>
+            <div class="product-description">
+                <h4>Опис</h4>
+                <p>${product.description || 'Опис недоступний'}</p>
+            </div>
+            <button class="add-to-cart-button">ДОДАТИ В КОРЗИНУ</button>
         </div>
     `;
-
-    // Добавляем кнопку корзины всегда, кроме случая когда товар явно недоступен
-    const cartButton = document.createElement('button');
-    cartButton.className = 'add-to-cart-button';
-    cartButton.textContent = 'ДОДАТИ В КОРЗИНУ';
-    cartButton.addEventListener('click', () => {
-        addToCart(product);
-        showNotification('Товар додано в корзину');
-    });
-    detailsContainer.appendChild(cartButton);
-    
-    // Обработчик для кнопки "Назад"
-    const backButton = detailsContainer.querySelector('.back-button');
-    backButton.addEventListener('click', () => {
-        showHome();
-    });
     
     document.body.appendChild(detailsContainer);
-    detailsContainer.style.display = 'block';
+    
+    const backButton = document.getElementById('detailsBackButton');
+    backButton.onclick = () => {
+        detailsContainer.remove();
+        showHome();
+    };
+    
+    const addToCartButton = detailsContainer.querySelector('.add-to-cart-button');
+    addToCartButton.onclick = () => {
+        addToCart(product);
+        showNotification('Товар додано в корзину');
+    };
 }
 
 // Обработчик для категорий в каталоге
@@ -571,6 +530,76 @@ function showCatalog() {
     catalogContainer.style.display = 'block';
 }
 
+function handleCategoryClick(category) {
+    hideAllContainers();
+    
+    const subcategories = {
+        'Одноразки': [
+            'Elfbar 2000',
+            'Elfbar ri3000',
+            'Elfbar4000',
+            'Hqd click6000',
+            'Hqd7000',
+            'Vozol12000',
+            'Hqd15000',
+            'Elfbar bc18000',
+            'Vozol Star20000',
+            'Vozol Vista20000',
+            'Hqd20000',
+            'Elfbar gh23000',
+            'Elfbar raya 25000',
+            'Hqd Everest 25000',
+            'Elfbar ice king 30000'
+        ],
+        'Рідина': [
+            'Elfliq 30ml/5%',
+            'Chaser Black 30 ml/5%',
+            'Chaser Lux 30 ml/5%',
+            'Chaser Mix 30 ml/5%',
+            'Chaser F/P 30 ml/5%',
+            'Chaser New 30 ml/5%',
+            'Рик и морти 30ml/ 4.5%'
+        ],
+        'Картриджи': []
+    };
+    
+    const selectedSubcategories = subcategories[category] || [];
+    
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = 'catalog-container';
+    
+    let catalogHTML = `
+        <div class="catalog-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Категорія: ${category}</h1>
+        </div>
+        <div class="category-list">
+            <div class="category-item" onclick="showCatalog()">
+                <span>Всі категорії</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+    `;
+    
+    selectedSubcategories.forEach(subcategory => {
+        catalogHTML += `
+            <div class="category-item">
+                <span>${subcategory}</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+        `;
+    });
+    
+    catalogHTML += '</div>';
+    catalogContainer.innerHTML = catalogHTML;
+    
+    const backButton = catalogContainer.querySelector('.back-button');
+    backButton.addEventListener('click', showCatalog);
+    
+    document.body.appendChild(catalogContainer);
+}
+
 // Функция для скрытия всех контейнеров
 function hideAllContainers() {
     document.querySelector('.app').style.display = 'none';
@@ -578,6 +607,7 @@ function hideAllContainers() {
     document.querySelector('.catalog-container')?.remove();
     document.querySelector('.account-container')?.remove();
     document.querySelector('.product-details-container')?.remove();
+    document.querySelector('.checkout-container')?.remove();
 }
 
 // Функции для страниц
@@ -913,68 +943,68 @@ document.head.appendChild(additionalStyles);
 // Добавляем стили для деталей продукта
 const productDetailsStyles = document.createElement('style');
 productDetailsStyles.textContent = `
-    .product-details {
+    .product-details-container {
         padding: 16px;
         padding-bottom: 80px;
     }
 
-    .details-header {
-        text-align: center;
+    .product-details-header {
+        display: flex;
+        align-items: center;
         margin-bottom: 24px;
     }
 
-    .details-content {
+    .product-details-header .back-button {
+        background: none;
+        border: none;
+        padding: 8px;
+        margin-right: 16px;
+        cursor: pointer;
+        color: var(--tg-theme-text-color);
+    }
+
+    .product-details {
         background: var(--tg-theme-bg-color);
         border-radius: 12px;
         padding: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .product-price-large {
+    .product-details h1 {
         color: #4CAF50;
         font-size: 24px;
         margin-bottom: 8px;
     }
 
-    .product-name-large {
+    .product-details h3 {
         margin-bottom: 16px;
     }
 
-    .availability-badge {
+    .availability {
         padding: 4px 8px;
         border-radius: 12px;
         font-size: 14px;
         margin-bottom: 16px;
         display: inline-block;
+    }
+
+    .in-stock {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .out-of-stock {
         background: #F44336;
         color: white;
     }
 
-    .details-section {
-        margin-bottom: 24px;
+    .product-characteristics ul {
+        list-style: none;
+        padding: 0;
     }
 
-    .details-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 16px;
-    }
-
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .detail-label {
-        color: var(--tg-theme-hint-color);
-        font-size: 14px;
-        margin-bottom: 4px;
-    }
-
-    .detail-value {
-        color: var(--tg-theme-text-color);
-        font-size: 16px;
+    .product-characteristics li {
+        margin-bottom: 8px;
     }
 
     .product-description {
@@ -1152,3 +1182,213 @@ noProductsStyle.textContent = `
     }
 `;
 document.head.appendChild(noProductsStyle);
+
+// Функция оформления заказа
+function checkout() {
+    hideAllContainers();
+    
+    const checkoutContainer = document.createElement('div');
+    checkoutContainer.className = 'checkout-container';
+    checkoutContainer.innerHTML = `
+        <div class="checkout-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <a class="home-button" href="#">
+                <i class="material-icons">home</i>
+            </a>
+        </div>
+        <h1>Оформлення замовлення</h1>
+        
+        <form id="checkoutForm" class="checkout-form">
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="section-number">1</span>
+                    <h2>Ваші контактні данні</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Ім'я</label>
+                    <input type="text" id="name" placeholder="Введіть ваше ім'я">
+                    <span class="error-message" id="nameError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="surname">Прізвище</label>
+                    <input type="text" id="surname" placeholder="Введіть ваше прізвище">
+                    <span class="error-message" id="surnameError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Номер телефону</label>
+                    <input type="tel" id="phone" placeholder="+48XXXXXXXXX">
+                    <span class="error-message" id="phoneError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Електронна пошта</label>
+                    <input type="email" id="email" placeholder="example@email.com">
+                    <span class="error-message" id="emailError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telegram">Ваш нік у телеграмі</label>
+                    <input type="text" id="telegram" placeholder="@username">
+                    <span class="helper-text">Щоб у разі чого менеджер міг зв'язатися</span>
+                    <span class="error-message" id="telegramError"></span>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-header">
+                    <span class="section-number">2</span>
+                    <h2>Доставка</h2>
+                </div>
+                
+                <div class="delivery-options">
+                    <label class="radio-option">
+                        <input type="radio" name="delivery" value="inpost_parcel" checked>
+                        <span>InPost пачкомат</span>
+                    </label>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="delivery" value="inpost_courier">
+                        <span>InPost кур'єр</span>
+                    </label>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="delivery" value="international">
+                        <span>Доставка за кордон</span>
+                    </label>
+                </div>
+                
+                <button class="map-button" onclick="showMap()">
+                    <i class="material-icons">place</i>
+                    Обрати на мапі
+                </button>
+                
+                <div class="form-group">
+                    <label for="promo">Промокод</label>
+                    <input type="text" id="promo" placeholder="Введіть промокод">
+                </div>
+            </div>
+            
+            <button class="checkout-form-button" onclick="validateAndProceed()">
+                ОФОРМИТИ ЗАМОВЛЕННЯ
+            </button>
+        </form>
+    `;
+    
+    // Обработчики кнопок
+    const backButton = checkoutContainer.querySelector('.back-button');
+    backButton.addEventListener('click', () => {
+        showCart();
+    });
+    
+    const homeButton = checkoutContainer.querySelector('.home-button');
+    homeButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        showHome();
+    });
+    
+    document.body.appendChild(checkoutContainer);
+}
+
+function validateAndProceed() {
+    const form = document.getElementById('checkoutForm');
+    const inputs = form.querySelectorAll('input[required]');
+    let isValid = true;
+
+    inputs.forEach(input => {
+        if (!input.value) {
+            input.classList.add('invalid');
+            input.nextElementSibling.style.display = 'block';
+            isValid = false;
+        }
+    });
+
+    if (isValid) {
+        showPaymentMethods();
+    }
+}
+
+function showPaymentMethods() {
+    hideAllContainers();
+    
+    const paymentContainer = document.createElement('div');
+    paymentContainer.className = 'payment-container';
+    paymentContainer.innerHTML = `
+        <div class="payment-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+        </div>
+        <h2>Оберіть оплату</h2>
+        
+        <div class="payment-methods">
+            <label class="payment-option">
+                <input type="radio" name="payment" value="monobank">
+                <span>Monobank</span>
+            </label>
+            
+            <label class="payment-option">
+                <input type="radio" name="payment" value="blik">
+                <span>Blik</span>
+            </label>
+            
+            <label class="payment-option">
+                <input type="radio" name="payment" value="crypto">
+                <span>Crypto trc-20</span>
+            </label>
+        </div>
+
+        <div class="payment-details">
+            <p>Після оплати, надішліть підтвердження оплати (pdf)</p>
+        </div>
+    `;
+
+    // Обработчики для методов оплаты
+    const paymentMethods = paymentContainer.querySelectorAll('input[name="payment"]');
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', (e) => {
+            showPaymentDetails(e.target.value);
+        });
+    });
+
+    // Обработчик для кнопки "Назад"
+    const backButton = paymentContainer.querySelector('.back-button');
+    backButton.addEventListener('click', () => {
+        document.querySelector('.payment-container').remove();
+        checkout();
+    });
+    
+    document.body.appendChild(paymentContainer);
+}
+
+function showPaymentDetails(method) {
+    const detailsContainer = document.querySelector('.payment-details');
+    let details = '';
+    
+    switch(method) {
+        case 'monobank':
+            details = `
+                <h3>Monobank</h3>
+                <p>Номер карти: XXXX XXXX XXXX XXXX</p>
+            `;
+            break;
+        case 'blik':
+            details = `
+                <h3>Blik</h3>
+                <p>Код BLIK: XXXXXX</p>
+            `;
+            break;
+        case 'crypto':
+            details = `
+                <h3>Crypto TRC-20</h3>
+                <p>Адреса: XXXXXXXXXXXXXXXXXXXXX</p>
+            `;
+            break;
+    }
+    
+    detailsContainer.innerHTML = details + '<p>Після оплати, надішліть підтвердження оплати (pdf)</p>';
+}
