@@ -212,7 +212,7 @@ function showCart() {
                 <button class="back-button">
                     <i class="material-icons">arrow_back</i>
                 </button>
-                <h1>CHASER | HOTSPOT</h1>
+                <h1>VAPE ROOM | ELFBAR WROCLAW</h1>
             </div>
             <div class="cart-empty">
                 <p>Ваша корзина пуста</p>
@@ -238,7 +238,7 @@ function showCart() {
             <button class="back-button">
                 <i class="material-icons">arrow_back</i>
             </button>
-            <h1>CHASER | HOTSPOT</h1>
+            <h1>VAPE ROOM | ELFBAR WROCLAW</h1>
         </div>
         <div class="cart-items">
     `;
@@ -698,77 +698,6 @@ function getOrderData() {
     };
 }
 
-function notifyUserOrderProcessing(userChatId, botToken) {
-    const message = 'Ваш заказ принят и находится в обработке.';
-    
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            chat_id: userChatId,
-            text: message
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.ok) {
-            console.log('User notified successfully');
-        } else {
-            console.error('Error notifying user:', data);
-        }
-    })
-    .catch(error => {
-        console.error('Error notifying user:', error);
-    });
-}
-
-function sendOrderDetailsToAdmin(file, paymentMethod) {
-    const orderData = getOrderData();
-    const userDetails = savedUserDetails;
-    const adminChatId = '2122584931';
-    const botToken = '7257026267:AAGz3982jhY4V7SgndGosd7a6m1T0ccJ81Q';
-    
-    const message = `Новый заказ:\n\n` +
-                    `Имя: ${userDetails.name}\n` +
-                    `Фамилия: ${userDetails.surname}\n` +
-                    `Телефон: ${userDetails.phone}\n` +
-                    `Email: ${userDetails.email}\n` +
-                    `Telegram: ${userDetails.telegram}\n` +
-                    `Адреса доставки: ${userDetails.address}\n` +
-                    `Метод оплати: ${paymentMethod}\n` +
-                    `\nТовары: ${orderData.items.map(item => item.name).join(', ')}\n` +
-                    `Сумма: ${orderData.total.toFixed(2)} zł`;
-    
-    console.log('User Details:', userDetails);
-    console.log('Order Data:', orderData);
-    
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            chat_id: adminChatId,
-            text: message
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.ok) {
-            console.log('Order details sent successfully');
-            sendReceiptToAdmin(file, adminChatId, botToken);
-            notifyUserOrderProcessing(userDetails.telegram, botToken); // Notify user
-        } else {
-            console.error('Error sending order details:', data);
-        }
-    })
-    .catch(error => {
-        console.error('Error sending order details:', error);
-    });
-}
-
 // Функция для показа уведомлений
 function showNotification(message) {
     const notification = document.createElement('div');
@@ -890,16 +819,171 @@ function showCatalog() {
                         <span>Box</span>
                         <i class="material-icons">chevron_right</i>
                     </div>
-                    <div class="category-item" data-category="Мерч">
-                        <span>Мерч</span>
+                </div>
+            </div>
+            <div class="catalog-section">
+                <h3>Вартість</h3>
+                <div class="price-range">
+                    <input type="range" min="0" max="280" value="0" class="price-slider">
+                    <div class="price-inputs">
+                        <input type="number" value="0" min="0" max="280" class="price-input">
+                        <input type="number" value="280" min="0" max="280" class="price-input">
+                    </div>
+                </div>
+            </div>
+            <button class="show-products-button">
+                Показати
+                <span class="products-count">Знайдено товарів: 130</span>
+            </button>
+        `;
+        
+        // Добавляем обработчики для категорий
+        catalogContainer.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', () => {
+                handleCategoryClick(item.dataset.category);
+            });
+        });
+
+        // Обработчик для кнопки "Назад"
+        const backButton = catalogContainer.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Очистить"
+        const clearButton = catalogContainer.querySelector('.clear-button');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                currentCategory = null;
+                showNotification('Фільтри очищені');
+                showHome();
+            });
+        }
+
+        // Обработчик для кнопки "Показати"
+        const showButton = catalogContainer.querySelector('.show-products-button');
+        if (showButton) {
+            showButton.addEventListener('click', handleShowProducts);
+        }
+        
+        document.body.appendChild(catalogContainer);
+    }
+    
+    catalogContainer.style.display = 'block';
+}
+
+function handleCategoryClick(category) {
+    hideAllContainers();
+    
+    const subcategories = {
+        'Одноразки': [
+            'Elfbar 2000',
+            'Elfbar ri3000',
+            'Elfbar4000',
+            'Hqd click6000',
+            'Hqd7000',
+            'Vozol12000',
+            'Hqd15000',
+            'Elfbar bc18000',
+            'Vozol Star20000',
+            'Vozol Vista20000',
+            'Hqd20000',
+            'Elfbar gh23000',
+            'Elfbar raya 25000',
+            'Hqd Everest 25000',
+            'Elfbar ice king 30000'
+        ],
+        'Рідина': [
+            'Elfliq 30ml/5%',
+            'Chaser Black 30 ml/5%',
+            'Chaser Lux 30 ml/5%',
+            'Chaser Mix 30 ml/5%',
+            'Chaser F/P 30 ml/5%',
+            'Chaser New 30 ml/5%',
+            'Рик и морти 30ml/ 4.5%'
+        ],
+        'Картриджи': []
+    };
+    
+    const selectedSubcategories = subcategories[category] || [];
+    
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = 'catalog-container';
+    
+    let catalogHTML = `
+        <div class="catalog-header">
+            <button class="back-button">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h1>Категорія: ${category}</h1>
+        </div>
+        <div class="category-list">
+            <div class="category-item" onclick="showCatalog()">
+                <span>Всі категорії</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+    `;
+    
+    selectedSubcategories.forEach(subcategory => {
+        catalogHTML += `
+            <div class="category-item">
+                <span>${subcategory}</span>
+                <i class="material-icons">chevron_right</i>
+            </div>
+        `;
+    });
+    
+    catalogHTML += '</div>';
+    catalogContainer.innerHTML = catalogHTML;
+    
+    const backButton = catalogContainer.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', showCatalog);
+    }
+    
+    document.body.appendChild(catalogContainer);
+}
+
+// Обновляем функцию showCatalog
+function showCatalog() {
+    hideAllContainers();
+    
+    let catalogContainer = document.querySelector('.catalog-container');
+    if (!catalogContainer) {
+        catalogContainer = document.createElement('div');
+        catalogContainer.className = 'catalog-container';
+        catalogContainer.innerHTML = `
+            <div class="catalog-header">
+                <button class="back-button">
+                    <i class="material-icons">arrow_back</i>
+                </button>
+                <h2>Фільтр</h2>
+                <button class="clear-button">Очистити</button>
+            </div>
+            <div class="filter-count">: 0</div>
+            <div class="catalog-section">
+                <h3>Вибір категорії</h3>
+                <div class="category-list">
+                    <div class="category-item" data-category="Поди">
+                        <span>Поди</span>
                         <i class="material-icons">chevron_right</i>
                     </div>
-                    <div class="category-item" data-category="Уголь">
-                        <span>Уголь</span>
+                    <div class="category-item" data-category="Рідина">
+                        <span>Рідина</span>
                         <i class="material-icons">chevron_right</i>
                     </div>
-                    <div class="category-item" data-category="Табак">
-                        <span>Табак</span>
+                    <div class="category-item" data-category="Одноразки">
+                        <span>Одноразки</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Картриджи">
+                        <span>Картриджи</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="category-item" data-category="Box">
+                        <span>Box</span>
                         <i class="material-icons">chevron_right</i>
                     </div>
                 </div>
@@ -1068,18 +1152,7 @@ function showCatalog() {
                     <div class="category-item" data-category="Box">
                         <span>Box</span>
                         <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Мерч">
-                        <span>Мерч</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Уголь">
-                        <span>Уголь</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Табак">
-                        <span>Табак</span>
-                        <i class="material-icons">chevron_right</i>
+
                     </div>
                 </div>
             </div>
@@ -1228,10 +1301,7 @@ function showCatalog() {
             <div class="catalog-section">
                 <h3>Вибір категорії</h3>
                 <div class="category-list">
-                    <div class="category-item" data-category="Поди">
-                        <span>Поди</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
+
                     <div class="category-item" data-category="Рідина">
                         <span>Рідина</span>
                         <i class="material-icons">chevron_right</i>
@@ -1247,197 +1317,7 @@ function showCatalog() {
                     <div class="category-item" data-category="Box">
                         <span>Box</span>
                         <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Мерч">
-                        <span>Мерч</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Уголь">
-                        <span>Уголь</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Табак">
-                        <span>Табак</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                </div>
-            </div>
-            <div class="catalog-section">
-                <h3>Вартість</h3>
-                <div class="price-range">
-                    <input type="range" min="0" max="280" value="0" class="price-slider">
-                    <div class="price-inputs">
-                        <input type="number" value="0" min="0" max="280" class="price-input">
-                        <input type="number" value="280" min="0" max="280" class="price-input">
-                    </div>
-                </div>
-            </div>
-            <button class="show-products-button">
-                Показати
-                <span class="products-count">Знайдено товарів: 130</span>
-            </button>
-        `;
-        
-        // Добавляем обработчики для категорий
-        catalogContainer.querySelectorAll('.category-item').forEach(item => {
-            item.addEventListener('click', () => {
-                handleCategoryClick(item.dataset.category);
-            });
-        });
 
-        // Обработчик для кнопки "Назад"
-        const backButton = catalogContainer.querySelector('.back-button');
-        if (backButton) {
-            backButton.addEventListener('click', () => {
-                showHome();
-            });
-        }
-
-        // Обработчик для кнопки "Очистить"
-        const clearButton = catalogContainer.querySelector('.clear-button');
-        if (clearButton) {
-            clearButton.addEventListener('click', () => {
-                currentCategory = null;
-                showNotification('Фільтри очищені');
-                showHome();
-            });
-        }
-
-        // Обработчик для кнопки "Показати"
-        const showButton = catalogContainer.querySelector('.show-products-button');
-        if (showButton) {
-            showButton.addEventListener('click', handleShowProducts);
-        }
-        
-        document.body.appendChild(catalogContainer);
-    }
-    
-    catalogContainer.style.display = 'block';
-}
-
-function handleCategoryClick(category) {
-    hideAllContainers();
-    
-    const subcategories = {
-        'Одноразки': [
-            'Elfbar 2000',
-            'Elfbar ri3000',
-            'Elfbar4000',
-            'Hqd click6000',
-            'Hqd7000',
-            'Vozol12000',
-            'Hqd15000',
-            'Elfbar bc18000',
-            'Vozol Star20000',
-            'Vozol Vista20000',
-            'Hqd20000',
-            'Elfbar gh23000',
-            'Elfbar raya 25000',
-            'Hqd Everest 25000',
-            'Elfbar ice king 30000'
-        ],
-        'Рідина': [
-            'Elfliq 30ml/5%',
-            'Chaser Black 30 ml/5%',
-            'Chaser Lux 30 ml/5%',
-            'Chaser Mix 30 ml/5%',
-            'Chaser F/P 30 ml/5%',
-            'Chaser New 30 ml/5%',
-            'Рик и морти 30ml/ 4.5%'
-        ],
-        'Картриджи': []
-    };
-    
-    const selectedSubcategories = subcategories[category] || [];
-    
-    const catalogContainer = document.createElement('div');
-    catalogContainer.className = 'catalog-container';
-    
-    let catalogHTML = `
-        <div class="catalog-header">
-            <button class="back-button">
-                <i class="material-icons">arrow_back</i>
-            </button>
-            <h1>Категорія: ${category}</h1>
-        </div>
-        <div class="category-list">
-            <div class="category-item" onclick="showCatalog()">
-                <span>Всі категорії</span>
-                <i class="material-icons">chevron_right</i>
-            </div>
-    `;
-    
-    selectedSubcategories.forEach(subcategory => {
-        catalogHTML += `
-            <div class="category-item">
-                <span>${subcategory}</span>
-                <i class="material-icons">chevron_right</i>
-            </div>
-        `;
-    });
-    
-    catalogHTML += '</div>';
-    catalogContainer.innerHTML = catalogHTML;
-    
-    const backButton = catalogContainer.querySelector('.back-button');
-    if (backButton) {
-        backButton.addEventListener('click', showCatalog);
-    }
-    
-    document.body.appendChild(catalogContainer);
-}
-
-// Обновляем функцию showCatalog
-function showCatalog() {
-    hideAllContainers();
-    
-    let catalogContainer = document.querySelector('.catalog-container');
-    if (!catalogContainer) {
-        catalogContainer = document.createElement('div');
-        catalogContainer.className = 'catalog-container';
-        catalogContainer.innerHTML = `
-            <div class="catalog-header">
-                <button class="back-button">
-                    <i class="material-icons">arrow_back</i>
-                </button>
-                <h2>Фільтр</h2>
-                <button class="clear-button">Очистити</button>
-            </div>
-            <div class="filter-count">: 0</div>
-            <div class="catalog-section">
-                <h3>Вибір категорії</h3>
-                <div class="category-list">
-                    <div class="category-item" data-category="Поди">
-                        <span>Поди</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Рідина">
-                        <span>Рідина</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Одноразки">
-                        <span>Одноразки</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Картриджи">
-                        <span>Картриджи</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Box">
-                        <span>Box</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Мерч">
-                        <span>Мерч</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Уголь">
-                        <span>Уголь</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Табак">
-                        <span>Табак</span>
-                        <i class="material-icons">chevron_right</i>
                     </div>
                 </div>
             </div>
