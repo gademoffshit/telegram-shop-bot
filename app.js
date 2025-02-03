@@ -320,7 +320,9 @@ function addToCart(product) {
     } else {
         cart.push({...product, quantity: 1});
     }
+    saveCart();
     updateCartCounter();
+    showNotification('Товар додано в корзину');
     showCart();
 }
 
@@ -818,16 +820,7 @@ function showCatalog() {
                     <div class="category-item" data-category="Box">
                         <span>Box</span>
                         <i class="material-icons">chevron_right</i>
-                    </div>
-                </div>
-            </div>
-            <div class="catalog-section">
-                <h3>Вартість</h3>
-                <div class="price-range">
-                    <input type="range" min="0" max="280" value="0" class="price-slider">
-                    <div class="price-inputs">
-                        <input type="number" value="0" min="0" max="280" class="price-input">
-                        <input type="number" value="280" min="0" max="280" class="price-input">
+
                     </div>
                 </div>
             </div>
@@ -962,174 +955,6 @@ function showCatalog() {
                 <h2>Фільтр</h2>
                 <button class="clear-button">Очистити</button>
             </div>
-            <div class="filter-count">: 0</div>
-            <div class="catalog-section">
-                <h3>Вибір категорії</h3>
-                <div class="category-list">
-                    <div class="category-item" data-category="Поди">
-                        <span>Поди</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Рідина">
-                        <span>Рідина</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Одноразки">
-                        <span>Одноразки</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Картриджи">
-                        <span>Картриджи</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="category-item" data-category="Box">
-                        <span>Box</span>
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                </div>
-            </div>
-            <div class="catalog-section">
-                <h3>Вартість</h3>
-                <div class="price-range">
-                    <input type="range" min="0" max="280" value="0" class="price-slider">
-                    <div class="price-inputs">
-                        <input type="number" value="0" min="0" max="280" class="price-input">
-                        <input type="number" value="280" min="0" max="280" class="price-input">
-                    </div>
-                </div>
-            </div>
-            <button class="show-products-button">
-                Показати
-                <span class="products-count">Знайдено товарів: 130</span>
-            </button>
-        `;
-        
-        // Добавляем обработчики для категорий
-        catalogContainer.querySelectorAll('.category-item').forEach(item => {
-            item.addEventListener('click', () => {
-                handleCategoryClick(item.dataset.category);
-            });
-        });
-
-        // Обработчик для кнопки "Назад"
-        const backButton = catalogContainer.querySelector('.back-button');
-        if (backButton) {
-            backButton.addEventListener('click', () => {
-                showHome();
-            });
-        }
-
-        // Обработчик для кнопки "Очистить"
-        const clearButton = catalogContainer.querySelector('.clear-button');
-        if (clearButton) {
-            clearButton.addEventListener('click', () => {
-                currentCategory = null;
-                showNotification('Фільтри очищені');
-                showHome();
-            });
-        }
-
-        // Обработчик для кнопки "Показати"
-        const showButton = catalogContainer.querySelector('.show-products-button');
-        if (showButton) {
-            showButton.addEventListener('click', handleShowProducts);
-        }
-        
-        document.body.appendChild(catalogContainer);
-    }
-    
-    catalogContainer.style.display = 'block';
-}
-
-function handleCategoryClick(category) {
-    hideAllContainers();
-    
-    const subcategories = {
-        'Одноразки': [
-            'Elfbar 2000',
-            'Elfbar ri3000',
-            'Elfbar4000',
-            'Hqd click6000',
-            'Hqd7000',
-            'Vozol12000',
-            'Hqd15000',
-            'Elfbar bc18000',
-            'Vozol Star20000',
-            'Vozol Vista20000',
-            'Hqd20000',
-            'Elfbar gh23000',
-            'Elfbar raya 25000',
-            'Hqd Everest 25000',
-            'Elfbar ice king 30000'
-        ],
-        'Рідина': [
-            'Elfliq 30ml/5%',
-            'Chaser Black 30 ml/5%',
-            'Chaser Lux 30 ml/5%',
-            'Chaser Mix 30 ml/5%',
-            'Chaser F/P 30 ml/5%',
-            'Chaser New 30 ml/5%',
-            'Рик и морти 30ml/ 4.5%'
-        ],
-        'Картриджи': []
-    };
-    
-    const selectedSubcategories = subcategories[category] || [];
-    
-    const catalogContainer = document.createElement('div');
-    catalogContainer.className = 'catalog-container';
-    
-    let catalogHTML = `
-        <div class="catalog-header">
-            <button class="back-button">
-                <i class="material-icons">arrow_back</i>
-            </button>
-            <h1>Категорія: ${category}</h1>
-        </div>
-        <div class="category-list">
-            <div class="category-item" onclick="showCatalog()">
-                <span>Всі категорії</span>
-                <i class="material-icons">chevron_right</i>
-            </div>
-    `;
-    
-    selectedSubcategories.forEach(subcategory => {
-        catalogHTML += `
-            <div class="category-item">
-                <span>${subcategory}</span>
-                <i class="material-icons">chevron_right</i>
-            </div>
-        `;
-    });
-    
-    catalogHTML += '</div>';
-    catalogContainer.innerHTML = catalogHTML;
-    
-    const backButton = catalogContainer.querySelector('.back-button');
-    if (backButton) {
-        backButton.addEventListener('click', showCatalog);
-    }
-    
-    document.body.appendChild(catalogContainer);
-}
-
-// Обновляем функцию showCatalog
-function showCatalog() {
-    hideAllContainers();
-    
-    let catalogContainer = document.querySelector('.catalog-container');
-    if (!catalogContainer) {
-        catalogContainer = document.createElement('div');
-        catalogContainer.className = 'catalog-container';
-        catalogContainer.innerHTML = `
-            <div class="catalog-header">
-                <button class="back-button">
-                    <i class="material-icons">arrow_back</i>
-                </button>
-                <h2>Фільтр</h2>
-                <button class="clear-button">Очистити</button>
-            </div>
-            <div class="filter-count">: 0</div>
             <div class="catalog-section">
                 <h3>Вибір категорії</h3>
                 <div class="category-list">
@@ -1156,16 +981,6 @@ function showCatalog() {
                     </div>
                 </div>
             </div>
-            <div class="catalog-section">
-                <h3>Вартість</h3>
-                <div class="price-range">
-                    <input type="range" min="0" max="280" value="0" class="price-slider">
-                    <div class="price-inputs">
-                        <input type="number" value="0" min="0" max="280" class="price-input">
-                        <input type="number" value="280" min="0" max="280" class="price-input">
-                    </div>
-                </div>
-            </div>
             <button class="show-products-button">
                 Показати
                 <span class="products-count">Знайдено товарів: 130</span>
@@ -1297,11 +1112,13 @@ function showCatalog() {
                 <h2>Фільтр</h2>
                 <button class="clear-button">Очистити</button>
             </div>
-            <div class="filter-count">: 0</div>
             <div class="catalog-section">
                 <h3>Вибір категорії</h3>
                 <div class="category-list">
-
+                    <div class="category-item" data-category="Поди">
+                        <span>Поди</span>
+                        <i class="material-icons">chevron_right</i>
+                    </div>
                     <div class="category-item" data-category="Рідина">
                         <span>Рідина</span>
                         <i class="material-icons">chevron_right</i>
@@ -1318,16 +1135,6 @@ function showCatalog() {
                         <span>Box</span>
                         <i class="material-icons">chevron_right</i>
 
-                    </div>
-                </div>
-            </div>
-            <div class="catalog-section">
-                <h3>Вартість</h3>
-                <div class="price-range">
-                    <input type="range" min="0" max="280" value="0" class="price-slider">
-                    <div class="price-inputs">
-                        <input type="number" value="0" min="0" max="280" class="price-input">
-                        <input type="number" value="280" min="0" max="280" class="price-input">
                     </div>
                 </div>
             </div>
@@ -1531,7 +1338,7 @@ bottomNav.innerHTML = `
         <span>Главная</span>
     </div>
     <div class="nav-item" data-page="catalog">
-        <i class="material-icons">category</i>
+        <i class="material-icons">assignment</i>
         <span>Каталог</span>
     </div>
     <div class="nav-item" data-page="cart">
@@ -2028,3 +1835,48 @@ noProductsStyle.textContent = `
     }
 `;
 document.head.appendChild(noProductsStyle);
+
+function loadCart() {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+}
+
+function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+cart = loadCart();
+
+function addToCart(product) {
+    const existingProduct = cart.find(item => item.id === product.id);
+    if (existingProduct) {
+        existingProduct.quantity += 1;
+    } else {
+        cart.push({...product, quantity: 1});
+    }
+    saveCart();
+    updateCartCounter();
+    showNotification('Товар додано в корзину');
+    showCart();
+}
+
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    saveCart();
+    updateCartCounter();
+}
+
+function clearCart() {
+    cart = [];
+    saveCart();
+    updateCartCounter();
+}
+
+function updateCartCounter() {
+    const counter = document.querySelector('.cart-counter');
+    counter.textContent = cart.reduce((acc, item) => acc + item.quantity, 0);
+}
+
+window.addEventListener('load', () => {
+    updateCartCounter();
+});
