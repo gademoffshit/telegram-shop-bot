@@ -9,7 +9,6 @@ from aiogram.types import (
 )
 from dotenv import load_dotenv
 import os
-from flask import Flask, request, jsonify
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -20,8 +19,6 @@ dp = Dispatcher()
 
 # URL вашего веб-приложения
 WEBAPP_URL = "https://gademoffshit.github.io/telegram-shop-bot/"
-
-app = Flask(__name__)
 
 def get_main_keyboard():
     """Создание инлайн клавиатуры"""
@@ -66,23 +63,10 @@ async def help_handler(callback: types.CallbackQuery):
     await callback.message.answer(help_text)
     await callback.answer()
 
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    data = request.get_json()
-    chat_id = data.get('chat_id')
-    message = data.get('message')
-    
-    try:
-        bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
 async def main():
     """Запуск бота"""
     logging.basicConfig(level=logging.INFO)
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    app.run()
     asyncio.run(main())
