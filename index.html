@@ -7,50 +7,82 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app">
         <header>
             <div class="header-content">
-                <button class="home-btn" id="homeButton">
+                <button class="nav-btn home-btn" id="homeButton">
                     <i class="material-icons">home</i>
                 </button>
                 <div class="search-container">
-                    <input type="search" class="search-input" placeholder="Поиск...">
-                    <button class="search-btn">
-                        <i class="material-icons">search</i>
-                    </button>
+                    <i class="material-icons search-icon">search</i>
+                    <input type="search" class="search-input" placeholder="Пошук товарів...">
                 </div>
-                <button class="cart-btn" id="cartButton">
+                <button class="nav-btn cart-btn" id="cartButton">
                     <i class="material-icons">shopping_cart</i>
                     <span class="cart-counter">0</span>
                 </button>
             </div>
         </header>
-        <div class="welcome-message">
-            <h1>Рады вас видеть в Vape Room</h1>
-        </div>
-        <div class="categories-scroll">
-            <div class="categories">
-                <button class="category-btn">Рідина</button>
-                <button class="category-btn">Одноразки</button>
-                <button class="category-btn">Картриджі</button>
-                <button class="category-btn">Аксесуари</button>
+
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>CHASER | HOTSPOT</h1>
+                <p>Ласкаво просимо до нашого магазину</p>
             </div>
         </div>
 
-        <div class="filters">
-            <select class="sort-select">
-                <option value="price_asc">Від дешевих до дорогих</option>
-                <option value="price_desc">Від дорогих до дешевих</option>
-                <option value="popular">За популярністю</option>
-            </select>
-        </div>
+        <nav class="categories-nav">
+            <div class="categories-scroll">
+                <div class="categories">
+                    <button class="category-btn" data-category="liquid">
+                        <i class="material-icons">opacity</i>
+                        <span>Рідина</span>
+                    </button>
+                    <button class="category-btn" data-category="disposable">
+                        <i class="material-icons">smoking_rooms</i>
+                        <span>Одноразки</span>
+                    </button>
+                    <button class="category-btn" data-category="cartridge">
+                        <i class="material-icons">battery_charging_full</i>
+                        <span>Картриджі</span>
+                    </button>
+                    <button class="category-btn" data-category="accessories">
+                        <i class="material-icons">build</i>
+                        <span>Аксесуари</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
 
-        <main class="products-grid">
-            <!-- Продукты будут добавлены через JavaScript -->
-        </main>
+        <div class="content-section">
+            <div class="filters-bar">
+                <div class="active-filters">
+                    <span class="filter-label">Сортування:</span>
+                    <select class="sort-select">
+                        <option value="popular">За популярністю</option>
+                        <option value="price_asc">Від дешевих до дорогих</option>
+                        <option value="price_desc">Від дорогих до дешевих</option>
+                    </select>
+                </div>
+                <button class="view-toggle">
+                    <i class="material-icons">grid_view</i>
+                </button>
+            </div>
+
+            <main class="products-grid">
+                <!-- Продукты будут добавлены через JavaScript -->
+            </main>
+        </div>
     </div>
+
+    <div class="notification" id="notification">
+        <i class="material-icons notification-icon"></i>
+        <span class="notification-message"></span>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
