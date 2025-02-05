@@ -724,60 +724,6 @@ header {
     margin-top: 24px;
 }
 
-.checkout-form {
-    padding: 20px;
-    background: var(--tg-theme-bg-color, #fff);
-    border-radius: 12px;
-    margin: 20px;
-}
-
-.checkout-form h2 {
-    margin-bottom: 20px;
-    color: var(--tg-theme-text-color, #000);
-}
-
-.checkout-form .form-group {
-    margin-bottom: 15px;
-}
-
-.checkout-form .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: var(--tg-theme-text-color, #000);
-}
-
-.checkout-form .form-group input,
-.checkout-form .form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--tg-theme-hint-color, #999);
-    border-radius: 8px;
-    background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-    color: var(--tg-theme-text-color, #000);
-}
-
-.checkout-form .form-group textarea {
-    height: 80px;
-    resize: vertical;
-}
-
-.checkout-form .submit-button {
-    width: 100%;
-    padding: 12px;
-    background: var(--tg-theme-button-color, #2481cc);
-    color: var(--tg-theme-button-text-color, #fff);
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-.checkout-form .submit-button:hover {
-    opacity: 0.9;
-}
-
 /* Payment styles */
 .payment-container {
     padding: 16px;
