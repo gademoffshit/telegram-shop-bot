@@ -29,56 +29,52 @@ orders_data = {}
 pending_orders = {}
 
 def get_main_keyboard():
-    """Создание инлайн клавиатуры"""
+    """Создаем основную клавиатуру"""
     buttons = [
-        [InlineKeyboardButton(text="Перейти до магазину", web_app=WebAppInfo(url=WEBAPP_URL))],
-        [InlineKeyboardButton(text="Чат з оператором 💬", callback_data="operator_chat")],
-        [InlineKeyboardButton(text="Допомога", callback_data="help")],
-        [InlineKeyboardButton(text="Адмін панель", callback_data="admin_panel")]
+        [{"text": "Перейти до магазину", "web_app": {"url": WEBAPP_URL}}],
+        [{"text": "Чат з оператором 💬", "callback_data": "operator_chat"}],
+        [{"text": "Допомога", "callback_data": "help"}],
+        [{"text": "Про нас", "callback_data": "about_us"}]
     ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-    return keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def get_payment_keyboard():
     """Создание клавиатуры для выбора способа оплаты"""
     buttons = [
-        [InlineKeyboardButton(text="Monobank", callback_data="pay_mono")],
-        [InlineKeyboardButton(text="Blik", callback_data="pay_blik")],
-        [InlineKeyboardButton(text="Crypto trc-20", callback_data="pay_crypto")],
-        [InlineKeyboardButton(text="Назад", callback_data="back_to_order")]
+        [{"text": "Monobank", "callback_data": "pay_mono"}],
+        [{"text": "Blik", "callback_data": "pay_blik"}],
+        [{"text": "Crypto trc-20", "callback_data": "pay_crypto"}],
+        [{"text": "Назад", "callback_data": "back_to_order"}]
     ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-    return keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def get_admin_keyboard():
     """Создание клавиатуры админ-панели"""
     buttons = [
         [
-            InlineKeyboardButton(text="Все заказы", callback_data="all_orders"),
-            InlineKeyboardButton(text="Ожидают оплаты", callback_data="waiting_orders")
+            {"text": "Все заказы", "callback_data": "all_orders"},
+            {"text": "Ожидают оплаты", "callback_data": "waiting_orders"}
         ],
         [
-            InlineKeyboardButton(text="Оплаченные", callback_data="paid_orders"),
-            InlineKeyboardButton(text="Отправленные", callback_data="shipped_orders")
+            {"text": "Оплаченные", "callback_data": "paid_orders"},
+            {"text": "Отправленные", "callback_data": "shipped_orders"}
         ]
     ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-    return keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def get_order_keyboard(order_id: str):
     """Создание клавиатуры для конкретного заказа"""
     buttons = [
         [
-            InlineKeyboardButton(text="✅ Принять", callback_data=f"accept_{order_id}"),
-            InlineKeyboardButton(text="❌ Отклонить", callback_data=f"reject_{order_id}")
+            {"text": "✅ Принять", "callback_data": f"accept_{order_id}"},
+            {"text": "❌ Отклонить", "callback_data": f"reject_{order_id}"}
         ],
-        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_orders")]
+        [{"text": "🔙 Назад", "callback_data": "back_to_orders"}]
     ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
-    return keyboard
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def generate_order_id():
@@ -119,6 +115,15 @@ async def cmd_start(message: types.Message):
         "Тут ви можете зробити замовлення та відстежувати його статус.",
         reply_markup=get_main_keyboard()
     )
+
+
+@dp.message(Command("admin"))
+async def admin_command(message: types.Message):
+    """Обработчик команды /admin"""
+    if str(message.from_user.id) == '7356161144':  # ID администратора
+        await message.answer("Панель адміністратора:", reply_markup=get_admin_keyboard())
+    else:
+        await message.answer("У вас немає доступу до панелі адміністратора.")
 
 
 @dp.callback_query(lambda c: c.data == "confirm_order")
@@ -230,8 +235,8 @@ async def process_payment(callback: types.CallbackQuery):
     }
 
     buttons = [
-        [InlineKeyboardButton(text="✅ Я сплатив", callback_data="payment_done")],
-        [InlineKeyboardButton(text="Назад", callback_data="back_to_payment")]
+        [{"text": "✅ Я сплатив", "callback_data": "payment_done"}],
+        [{"text": "Назад", "callback_data": "back_to_payment"}]
     ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -255,7 +260,7 @@ async def process_payment_confirmation(callback: types.CallbackQuery):
             )
             break
     buttons = [
-        [InlineKeyboardButton(text="До головного меню", callback_data="main_menu")]
+        [{"text": "До головного меню", "callback_data": "main_menu"}]
     ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     await callback.message.edit_text(
@@ -277,13 +282,67 @@ async def back_to_payment(callback: types.CallbackQuery):
     await callback.answer()
 
 
-@dp.callback_query(lambda c: c.data == "admin_panel")
-async def admin_panel(callback: types.CallbackQuery):
-    """Обработчик открытия админ панели"""
-    if str(callback.from_user.id) == '7356161144':  # ID администратора
-        await callback.message.answer("Заказы:", reply_markup=get_admin_keyboard())
-    else:
-        await callback.message.answer("У вас нет доступа к админ панели.")
+@dp.callback_query(lambda c: c.data == "operator_chat")
+async def operator_chat(callback: types.CallbackQuery):
+    """Обработчик кнопки чата с оператором"""
+    await callback.message.answer(
+        "Наш оператор скоро свяжется с вами.\n"
+        "Пожалуйста, опишите ваш вопрос."
+    )
+    await callback.answer()
+
+
+@dp.callback_query(lambda c: c.data == "help")
+async def help_handler(callback: types.CallbackQuery):
+    """Обработчик кнопки помощи"""
+    help_text = (
+        "🛍 Как сделать заказ:\n"
+        "1. Нажмите 'Перейти до магазину'\n"
+        "2. Выберите товары\n"
+        "3. Добавьте их в корзину\n"
+        "4. Оформите заказ\n\n"
+        "❓ Есть вопросы? Используйте 'Чат з оператором'"
+    )
+    await callback.message.answer(help_text)
+    await callback.answer()
+
+
+@dp.callback_query(lambda c: c.data == "about_us")
+async def send_about_us(callback: types.CallbackQuery):
+    about_text = (
+        "Про нас Vape Room\n\n"
+        "Ми – перевірений магазин електронних сигарет, рідин для подів та аксесуарів. "
+        "Вже 3,5 роки на ринку, за цей час ми обробили понад 3000 замовлень та отримали "
+        "понад 1500 реальних відгуків від задоволених клієнтів.\n\n"
+        "Чому обирають нас?\n\n"
+        "✅ Швидка доставка – надсилаємо замовлення до інших міст з доставкою за 1-2 дні.\n"
+        "Є сумніви? Напишіть менеджеру та отримайте відеофіксацію вашого замовлення!\n"
+        "✅ Оперативна підтримка – відповідаємо протягом 10-15 хвилин.\n"
+        "✅ Гнучка система знижок – постійні клієнти отримують вигідні пропозиції.\n"
+        "✅ Гуртова торгівля – працюємо з великими замовленнями.\n\n"
+        "Наша мета – надати якісний сервіс та найкращий вибір продукції для вейпінгу. "
+        "Приєднуйтесь до Vape Room та переконайтеся самі!"
+    )
+    
+    buttons = [[{"text": "🛍 Зробити замовлення", "web_app": {"url": WEBAPP_URL}}]]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    
+    await callback.message.answer(about_text, reply_markup=keyboard)
+    await callback.answer()
+
+
+@dp.callback_query(lambda c: c.data == "main_menu")
+async def process_main_menu(callback: types.CallbackQuery):
+    """Обработчик возврата в главное меню"""
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        print(f"Error deleting message: {e}")
+
+    await callback.message.answer(
+        "Виберіть дію:",
+        reply_markup=get_main_keyboard()
+    )
     await callback.answer()
 
 
@@ -317,14 +376,11 @@ async def process_order_filter(callback: types.CallbackQuery):
     
     for order_id, order in filtered_orders.items():
         button_text = f"Заказ #{order_id} - {order['status']}"
-        buttons.append([InlineKeyboardButton(
-            text=button_text,
-            callback_data=f"view_order_{order_id}"
-        )])
+        buttons.append([{"text": button_text, "callback_data": f"view_order_{order_id}"}])
     
     buttons.append([
-        InlineKeyboardButton(text="🔄 Обновить", callback_data=callback.data),
-        InlineKeyboardButton(text="🔙 Назад", callback_data="main_menu")
+        {"text": "🔄 Обновить", "callback_data": callback.data},
+        {"text": "🔙 Назад", "callback_data": "main_menu"}
     ])
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -397,8 +453,8 @@ async def process_order_action(callback: types.CallbackQuery):
             )
         
         buttons = [[
-            InlineKeyboardButton(text="🔙 К списку заказов", callback_data="all_orders"),
-            InlineKeyboardButton(text="🏠 В главное меню", callback_data="main_menu")
+            {"text": "🔙 К списку заказов", "callback_data": "all_orders"},
+            {"text": "🏠 В главное меню", "callback_data": "main_menu"}
         ]]
         keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
         
@@ -406,46 +462,6 @@ async def process_order_action(callback: types.CallbackQuery):
             f"Заказ #{order_id} {order['status'].lower()}",
             reply_markup=keyboard
         )
-    await callback.answer()
-
-
-@dp.callback_query(lambda c: c.data == "main_menu")
-async def process_main_menu(callback: types.CallbackQuery):
-    """Обработчик возврата в главное меню"""
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Error deleting message: {e}")
-
-    await callback.message.answer(
-        "Выберите действие:",
-        reply_markup=get_main_keyboard()
-    )
-    await callback.answer()
-
-
-@dp.callback_query(lambda c: c.data == "operator_chat")
-async def operator_chat(callback: types.CallbackQuery):
-    """Обработчик кнопки чата с оператором"""
-    await callback.message.answer(
-        "Наш оператор скоро свяжется с вами.\n"
-        "Пожалуйста, опишите ваш вопрос."
-    )
-    await callback.answer()
-
-
-@dp.callback_query(lambda c: c.data == "help")
-async def help_handler(callback: types.CallbackQuery):
-    """Обработчик кнопки помощи"""
-    help_text = (
-        "🛍 Как сделать заказ:\n"
-        "1. Нажмите 'Перейти до магазину'\n"
-        "2. Выберите товары\n"
-        "3. Добавьте их в корзину\n"
-        "4. Оформите заказ\n\n"
-        "❓ Есть вопросы? Используйте 'Чат з оператором'"
-    )
-    await callback.message.answer(help_text)
     await callback.answer()
 
 
