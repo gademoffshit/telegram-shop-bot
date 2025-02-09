@@ -203,6 +203,17 @@
             </div>
 
             <div class="products-list" id="productsList"></div>
+            <div class="product-list">
+                {{#each products}}
+                <div class="product-item">
+                    <h3>{{this.name}}</h3>
+                    <label>
+                        <input type="checkbox" class="stock-checkbox" data-id="{{this.id}}" {{#if this.in_stock}}checked{{/if}}>
+                        В наличии
+                    </label>
+                </div>
+                {{/each}}
+            </div>
         </div>
     </div>
 
@@ -355,6 +366,30 @@
                     </div>
                 </div>
             `).join('');
+
+            document.querySelectorAll('.stock-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const productId = this.getAttribute('data-id');
+                    const inStock = this.checked;
+                    
+                    // Отправляем запрос на сервер для обновления статуса наличия
+                    fetch('/update-stock', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: productId, in_stock: inStock })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Статус товара обновлен!');
+                        } else {
+                            alert('Ошибка обновления статуса.');
+                        }
+                    });
+                });
+            });
         }
 
         // Валидация формы
@@ -406,7 +441,8 @@
                 price: parseFloat(document.getElementById('price').value),
                 category: document.getElementById('category').value,
                 image: document.getElementById('image').value.trim(),
-                popularity: productId ? (products.find(p => p.id === parseInt(productId))?.popularity || 0) : 0
+                popularity: productId ? (products.find(p => p.id === parseInt(productId))?.popularity || 0) : 0,
+                in_stock: false
             };
 
             if (productId) {
