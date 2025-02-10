@@ -203,17 +203,6 @@
             </div>
 
             <div class="products-list" id="productsList"></div>
-            <div class="product-list">
-                {{#each products}}
-                <div class="product-item">
-                    <h3>{{this.name}}</h3>
-                    <label>
-                        <input type="checkbox" class="stock-checkbox" data-id="{{this.id}}" {{#if this.in_stock}}checked{{/if}}>
-                        В наличии
-                    </label>
-                </div>
-                {{/each}}
-            </div>
         </div>
     </div>
 
@@ -359,6 +348,10 @@
                         <h3>${product.name}</h3>
                         <p>Цена: ${product.price} zł</p>
                         <p>Категория: ${product.category}</p>
+                        <label>
+                            <input type="checkbox" class="stock-checkbox" data-id="${product.id}" ${product.in_stock ? 'checked' : ''}>
+                            В наличии
+                        </label>
                         <div class="product-actions">
                             <button onclick="editProduct(${index})" class="edit-btn">Редактировать</button>
                             <button onclick="deleteProduct(${index})" class="delete-btn">Удалить</button>
@@ -482,6 +475,8 @@
                 await displayProducts();
             }
         }
+
+        displayProducts();
     </script>
 </body>
 </html>
