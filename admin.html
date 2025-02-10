@@ -360,27 +360,26 @@
                 </div>
             `).join('');
 
+            bindStockCheckboxes();
+        }
+
+        // Обработчик изменения статуса наличия
+        async function updateProductStock(productId, inStock) {
+            const products = await getProducts();
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product.in_stock = inStock;
+                await saveProducts(products);
+            }
+        }
+
+        // Привязка обработчиков к чекбоксам
+        function bindStockCheckboxes() {
             document.querySelectorAll('.stock-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const productId = this.getAttribute('data-id');
+                checkbox.addEventListener('change', async function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
                     const inStock = this.checked;
-                    
-                    // Отправляем запрос на сервер для обновления статуса наличия
-                    fetch('/update-stock', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ id: productId, in_stock: inStock })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Статус товара обновлен!');
-                        } else {
-                            alert('Ошибка обновления статуса.');
-                        }
-                    });
+                    await updateProductStock(productId, inStock);
                 });
             });
         }
