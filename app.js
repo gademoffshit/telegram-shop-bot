@@ -6,7 +6,7 @@ tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#8774e1';
 
 // Загрузка товаров с GitHub
-async function getProducts() {
+async function getProducts(category = 'murder-mystery-2') {
     try {
         console.log('Начало загрузки товаров...');
         const timestamp = new Date().getTime();
@@ -15,8 +15,8 @@ async function getProducts() {
             throw new Error(`HTTP ошибка! статус: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Товары успешно загружены:', data.products);
-        return data.products || [];
+        console.log('Товары успешно загружены для категории:', category);
+        return data[category] || [];
     } catch (error) {
         console.error('Ошибка загрузки товаров:', error);
         return [];
@@ -313,11 +313,6 @@ function showCart() {
 
 // Добавление в корзину
 function addToCart(product) {
-    if (!product.in_stock) {
-        alert('Извините, этот товар временно недоступен.');
-        return;
-    }
-    
     const existingProduct = cart.find(item => item.id === product.id);
     if (existingProduct) {
         existingProduct.quantity += 1;
@@ -327,7 +322,6 @@ function addToCart(product) {
     saveCart();
     updateCartCounter();
     showNotification('Товар добавлен в корзину');
-    showCart();
 }
 
 // Обновление лічильника корзины
@@ -1303,11 +1297,6 @@ function saveCart() {
 cart = loadCart();
 
 function addToCart(product) {
-    if (!product.in_stock) {
-        alert('Извините, этот товар временно недоступен.');
-        return;
-    }
-    
     const existingProduct = cart.find(item => item.id === product.id);
     if (existingProduct) {
         existingProduct.quantity += 1;
@@ -1338,6 +1327,7 @@ function updateCartCounter() {
 }
 
 window.addEventListener('load', () => {
+    loadCart();
     updateCartCounter();
 });
 
@@ -1380,3 +1370,66 @@ const prizes = [
         maxAmount: 300
     }
 ];
+
+async function showProducts(category = 'murder-mystery-2') {
+    const productsGrid = document.querySelector('.products-grid');
+    productsGrid.innerHTML = '<div class="loading">Загрузка товаров...</div>';
+
+    const products = await getProducts(category);
+    
+    if (products.length === 0) {
+        productsGrid.innerHTML = '<div class="no-products">Товары не найдены</div>';
+        return;
+    }
+
+    productsGrid.innerHTML = '';
+    products.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.innerHTML = `
+            <div class="product-image">
+                <img src="${product.image}" alt="${product.name}" onerror="this.src='placeholder.png'">
+            </div>
+            <div class="product-info">
+                <h3 class="product-name">${product.name}</h3>
+                <p class="product-description">${product.description}</p>
+                <div class="product-footer">
+                    <span class="product-price">${product.price}₽</span>
+                    <button class="add-to-cart-btn" data-id="${product.id}">
+                        <i class="material-icons">add_shopping_cart</i>
+                    </button>
+                </div>
+            </div>
+        `;
+        productsGrid.appendChild(productCard);
+    });
+
+    // Добавляем обработчики для кнопок
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const productId = button.dataset.id;
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                addToCart(product);
+                saveCart(); // Сохраняем корзину после добавления товара
+            }
+        });
+    });
+}
+
+// Обработчики категорий
+document.querySelectorAll('.category-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        // Убираем активный класс у всех кнопок
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Добавляем активный класс нажатой кнопке
+        button.classList.add('active');
+        
+        // Показываем товары выбранной категории
+        const category = button.dataset.category;
+        showProducts(category);
+    });
+});
