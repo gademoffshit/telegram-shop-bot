@@ -935,7 +935,38 @@ function showWheel() {
     const startButton = wheelContainer.querySelector('.button');
     let deg = 0;
 
+    // Проверяем, когда пользователь в последний раз крутил колесо
+    const lastSpinTime = localStorage.getItem('lastSpinTime');
+    const currentTime = Date.now();
+    const cooldownTime = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+
+    if (lastSpinTime && (currentTime - parseInt(lastSpinTime) < cooldownTime)) {
+        // Если прошло меньше 24 часов
+        const timeLeft = cooldownTime - (currentTime - parseInt(lastSpinTime));
+        const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+        const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+        
+        startButton.style.opacity = '0.5';
+        startButton.style.cursor = 'not-allowed';
+        showNotification(`Вы сможете крутить колесо через ${hoursLeft} ч. ${minutesLeft} мин.`);
+        return;
+    }
+
     startButton.addEventListener('click', () => {
+        // Проверяем КД перед каждым кликом
+        const lastSpinTime = localStorage.getItem('lastSpinTime');
+        const currentTime = Date.now();
+        const cooldownTime = 24 * 60 * 60 * 1000;
+
+        if (lastSpinTime && (currentTime - parseInt(lastSpinTime) < cooldownTime)) {
+            const timeLeft = cooldownTime - (currentTime - parseInt(lastSpinTime));
+            const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+            const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            
+            showNotification(`Вы сможете крутить колесо через ${hoursLeft} ч. ${minutesLeft} мин.`);
+            return;
+        }
+
         // Отключаем кнопку во время вращения
         startButton.style.pointerEvents = 'none';
         
@@ -968,6 +999,9 @@ function showWheel() {
         
         // Добавляем размытие
         wheel.classList.add('blur');
+
+        // Сохраняем время вращения
+        localStorage.setItem('lastSpinTime', Date.now().toString());
     });
 
     wheel.addEventListener('transitionend', () => {
@@ -1000,13 +1034,13 @@ function showWheel() {
         let message = '';
         switch(selectedPrize.type) {
             case 'nothing':
-                message = 'К сожалению, вы ничего не выиграли. Попробуйте еще раз!';
+                message = 'К сожалению, вы ничего не выиграли. Попробуйте через 24 часа!';
                 break;
             case 'discount':
-                message = `Поздравляем! Вы выиграли скидку ${selectedPrize.amount}₽ при заказе от ${selectedPrize.minOrder}₽!`;
+                message = `Поздравляем! Вы выиграли скидку ${selectedPrize.amount}₽ при заказе от ${selectedPrize.minOrder}₽!\nСледующее вращение будет доступно через 24 часа.`;
                 break;
             case 'free':
-                message = `Поздравляем! Вы выиграли бесплатный заказ на сумму до ${selectedPrize.maxAmount}₽!`;
+                message = `Поздравляем! Вы выиграли бесплатный заказ на сумму до ${selectedPrize.maxAmount}₽!\nСледующее вращение будет доступно через 24 часа.`;
                 break;
         }
         showNotification(message);
