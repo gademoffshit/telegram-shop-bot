@@ -1,6 +1,15 @@
 {
   "products": [
     {
+      "id": 1,
+      "name": "Ursa Baby Pro Gunmetal Espresso",
+      "price": 140,
+      "category": "Одноразки",
+      "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
+      "popularity": 10,
+      "in_stock": true
+    },
+    {
       "id": 2,
       "name": "Ursa Nano Pro 2 Classic Brown",
       "price": 150,
@@ -8,6 +17,15 @@
       "image": "https://i2.wp.com/vapesourcing.com/images/202008/lolly_puff_disposable_bottom_view.jpg",
       "popularity": 8,
       "in_stock": true
+    },
+    {
+      "id": 3,
+      "name": "robux",
+      "price": 1,
+      "category": "robux",
+      "image": "https://sun9-53.userapi.com/impg/X0btE6l1rumyKHqZnf3AVjGnnccNgWMKH-S8EQ/JPop5gGTd7I.jpg?size=604x502&quality=95&sign=73912193eb70d74db5b6bd3a5875c19b&type=album",
+      "popularity": 0,
+      "in_stock": false
     }
   ]
 }
