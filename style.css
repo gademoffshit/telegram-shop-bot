@@ -5,7 +5,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--tg-theme-bg-color);
+    background: var(--primary-color);
     z-index: 1000;
 }
 
@@ -14,7 +14,7 @@
     align-items: center;
     margin-bottom: 24px;
     gap: 16px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
 }
 
 .cart-header h1 {
@@ -28,8 +28,8 @@
 }
 
 .cart-item {
-    background: var(--card-bg-color);
-    border: 1px solid var(--card-border-color);
+    background: var(--primary-color);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 16px;
     margin-bottom: 12px;
@@ -39,7 +39,7 @@
 }
 
 .cart-item:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
 }
 
 .cart-item-image {
@@ -57,7 +57,7 @@
 .cart-item-title {
     margin: 0 0 4px 0;
     font-size: 16px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
 }
 
 .cart-item-price {
@@ -74,8 +74,8 @@
 
 .quantity-btn {
     background: none;
-    border: 1px solid var(--card-border-color);
-    color: var(--tg-theme-text-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     width: 32px;
     height: 32px;
     border-radius: 8px;
@@ -87,16 +87,16 @@
 }
 
 .quantity-btn:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
 }
 
 .cart-total {
     margin-top: auto;
     padding: 16px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 12px;
     margin-bottom: 80px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
 }
 
 .cart-container .checkout-button {
@@ -106,7 +106,7 @@
     right: 16px;
     padding: 16px;
     background: var(--accent-color);
-    color: var(--tg-theme-bg-color);
+    color: var(--text-color);
     font-weight: 600;
     border: none;
     font-size: 16px;
@@ -122,7 +122,7 @@
 }
 
 .cart-container .checkout-button:hover {
-    background: var(--accent-color-light);
+    background: #0056b3;
 }
 
 .cart-empty {
@@ -130,7 +130,7 @@
     align-items: center;
     justify-content: center;
     height: calc(100vh - 100px);
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     font-size: 16px;
 }
 
@@ -143,12 +143,12 @@
 header {
     position: sticky;
     top: 0;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 16px 0;
     z-index: 1000;
-    border-bottom: 1px solid var(--card-border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header-content {
@@ -161,7 +161,7 @@ header {
 .nav-btn {
     background: transparent;
     border: none;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     width: 40px;
     height: 40px;
     border-radius: 12px;
@@ -173,7 +173,7 @@ header {
 }
 
 .nav-btn:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
 }
 
 .search-container {
@@ -186,7 +186,7 @@ header {
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     font-size: 20px;
 }
 
@@ -194,9 +194,9 @@ header {
     width: 100%;
     padding: 12px 12px 12px 40px;
     border-radius: 12px;
-    border: 1px solid var(--card-border-color);
-    background: var(--card-bg-color);
-    color: var(--tg-theme-text-color);
+    border: 1px solid var(--border-color);
+    background: var(--primary-color);
+    color: var(--text-color);
     font-size: 14px;
     transition: all 0.2s ease;
 }
@@ -204,7 +204,7 @@ header {
 .search-input:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px var(--accent-color-light);
+    box-shadow: 0 0 0 2px var(--accent-color);
 }
 
 .cart-counter {
@@ -212,7 +212,7 @@ header {
     top: 4px;
     right: 4px;
     background: var(--accent-color);
-    color: white;
+    color: var(--text-color);
     border-radius: 12px;
     padding: 2px 6px;
     font-size: 12px;
@@ -231,7 +231,7 @@ header {
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 2px;
-    color: white;
+    color: var(--text-color);
 }
 
 .hero-content h2 {
@@ -239,7 +239,7 @@ header {
     font-weight: 700;
     margin-top: 0;
     margin-bottom: 8px;
-    color: white;
+    color: var(--text-color);
 }
 
 .hero-content p {
@@ -269,24 +269,24 @@ header {
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    background: var(--card-bg-color);
-    border: 1px solid var(--card-border-color);
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     font-size: 14px;
     white-space: nowrap;
     transition: all 0.2s ease;
 }
 
 .category-btn:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
     border-color: var(--accent-color);
 }
 
 .category-btn.active {
     background: var(--accent-color);
     border-color: var(--accent-color);
-    color: var(--tg-theme-bg-color);
+    color: var(--text-color);
 }
 
 .category-btn i {
@@ -299,9 +299,9 @@ header {
     justify-content: space-between;
     margin-bottom: 24px;
     padding: 16px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 16px;
-    border: 1px solid var(--card-border-color);
+    border: 1px solid var(--border-color);
 }
 
 .active-filters {
@@ -311,16 +311,16 @@ header {
 }
 
 .filter-label {
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     font-size: 14px;
 }
 
 .sort-select {
     padding: 8px 32px 8px 12px;
     border-radius: 8px;
-    border: 1px solid var(--card-border-color);
-    background: var(--card-bg-color);
-    color: var(--tg-theme-text-color);
+    border: 1px solid var(--border-color);
+    background: var(--secondary-color);
+    color: var(--text-color);
     font-size: 14px;
     cursor: pointer;
     appearance: none;
@@ -333,7 +333,7 @@ header {
 .view-toggle {
     background: transparent;
     border: none;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
@@ -341,7 +341,7 @@ header {
 }
 
 .view-toggle:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
 }
 
 .products-grid {
@@ -352,7 +352,7 @@ header {
 }
 
 .product-card {
-    background: var(--tg-theme-secondary-bg-color);
+    background: var(--secondary-color);
     border-radius: 12px;
     overflow: hidden;
     display: flex;
@@ -384,7 +384,7 @@ header {
     font-size: 14px;
     font-weight: 600;
     margin: 0 0 8px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -393,7 +393,7 @@ header {
 
 .product-description {
     font-size: 12px;
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     margin: 0 0 12px;
     flex: 1;
     display: -webkit-box;
@@ -412,12 +412,12 @@ header {
 .product-price {
     font-size: 16px;
     font-weight: 700;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
 }
 
 .add-to-cart-btn {
-    background: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
+    background: var(--accent-color);
+    color: var(--text-color);
     border: none;
     border-radius: 8px;
     padding: 8px;
@@ -440,7 +440,7 @@ header {
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 12px 24px;
@@ -449,7 +449,7 @@ header {
     align-items: center;
     gap: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--card-border-color);
+    border: 1px solid var(--border-color);
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
@@ -467,7 +467,7 @@ header {
 }
 
 .notification-message {
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     font-size: 14px;
     font-weight: 500;
 }
@@ -476,7 +476,7 @@ header {
 .catalog-container {
     padding: 16px;
     padding-bottom: 80px;
-    background: var(--tg-theme-bg-color);
+    background: var(--primary-color);
 }
 
 .catalog-header {
@@ -496,7 +496,7 @@ header {
     background: none;
     border: none;
     padding: 8px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     cursor: pointer;
 }
 
@@ -509,7 +509,7 @@ header {
 }
 
 .filter-count {
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     margin-bottom: 24px;
 }
 
@@ -529,8 +529,8 @@ header {
 }
 
 .category-item {
-    border: 1px solid var(--card-border-color);
-    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    background: var(--secondary-color);
     border-radius: 16px;
     padding: 16px;
     margin-bottom: 12px;
@@ -543,17 +543,17 @@ header {
 }
 
 .category-item:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .category-item span {
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
 }
 
 .category-item i {
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
 }
 
 .price-range {
@@ -573,10 +573,10 @@ header {
 .price-input {
     flex: 1;
     padding: 8px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border: none;
     border-radius: 8px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     text-align: center;
 }
 
@@ -587,7 +587,7 @@ header {
     right: 0;
     padding: 16px;
     background: #4CAF50;
-    color: white;
+    color: var(--text-color);
     border: none;
     display: flex;
     flex-direction: column;
@@ -618,7 +618,7 @@ header {
     background: none;
     border: none;
     padding: 8px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -648,7 +648,7 @@ header {
 .section-number {
     width: 32px;
     height: 32px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -663,16 +663,16 @@ header {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
 }
 
 .form-group input {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--card-border-color);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: var(--card-bg-color);
-    color: var(--tg-theme-text-color);
+    background: var(--primary-color);
+    color: var(--text-color);
 }
 
 .form-group input.invalid {
@@ -688,7 +688,7 @@ header {
 
 .helper-text {
     display: block;
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     font-size: 12px;
     margin-top: 4px;
 }
@@ -705,7 +705,7 @@ header {
     align-items: center;
     gap: 12px;
     padding: 12px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 8px;
     cursor: pointer;
 }
@@ -713,10 +713,10 @@ header {
 .map-button {
     width: 100%;
     padding: 12px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border: none;
     border-radius: 8px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -739,7 +739,7 @@ header {
     width: 100%;
     padding: 16px;
     background: #4CAF50;
-    color: white;
+    color: var(--text-color);
     border: none;
     border-radius: 8px;
     font-size: 16px;
@@ -762,7 +762,7 @@ header {
     background: none;
     border: none;
     padding: 8px;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -781,14 +781,14 @@ header {
     align-items: center;
     gap: 12px;
     padding: 16px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 8px;
     cursor: pointer;
 }
 
 .payment-details {
     padding: 16px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 8px;
 }
 
@@ -798,7 +798,7 @@ header {
 
 .upload-button {
     background-color: #4CAF50;
-    color: white;
+    color: var(--text-color);
     padding: 10px 20px;
     margin-top: 10px;
     border: none;
@@ -815,7 +815,7 @@ header {
 /* Account styles */
 .account-container {
     padding: 20px;
-    background: var(--tg-theme-bg-color);
+    background: var(--primary-color);
     min-height: 100vh;
 }
 
@@ -825,16 +825,16 @@ header {
     gap: 16px;
     margin-bottom: 24px;
     padding: 16px;
-    background: var(--card-bg-color);
+    background: var(--secondary-color);
     border-radius: 16px;
-    border: 1px solid var(--card-border-color);
+    border: 1px solid var(--border-color);
 }
 
 .account-avatar {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -847,7 +847,7 @@ header {
 
 .account-header h2 {
     margin: 0;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     font-size: 24px;
 }
 
@@ -861,15 +861,15 @@ header {
     display: flex;
     align-items: center;
     padding: 16px;
-    background: var(--card-bg-color);
-    border: 1px solid var(--card-border-color);
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .account-menu-item:hover {
-    background: var(--hover-bg-color);
+    background: var(--secondary-color);
     border-color: var(--accent-color);
     transform: translateY(-2px);
 }
@@ -882,12 +882,12 @@ header {
 
 .account-menu-item span {
     flex: 1;
-    color: var(--tg-theme-text-color);
+    color: var(--text-color);
     font-size: 16px;
 }
 
 .account-menu-item .material-icons:last-child {
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
 }
 
 .bottom-nav {
@@ -895,8 +895,8 @@ header {
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--card-bg-color);
-    border-top: 1px solid var(--card-border-color);
+    background: var(--secondary-color);
+    border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: space-around;
     padding: 8px 0;
@@ -908,7 +908,7 @@ header {
     flex-direction: column;
     align-items: center;
     padding: 8px;
-    color: var(--tg-theme-hint-color);
+    color: var(--text-color);
     text-decoration: none;
     transition: all 0.2s ease;
 }
@@ -934,7 +934,7 @@ header {
     justify-content: center;
     padding: 20px;
     min-height: 100vh;
-    background: var(--tg-theme-bg-color);
+    background: var(--primary-color);
 }
 
 #wheel-app {
@@ -985,18 +985,11 @@ header {
 }
 
 :root {
-    --tg-theme-bg-color: #0a192f;
-    --tg-theme-text-color: #ffffff;
-    --tg-theme-hint-color: #8892b0;
-    --tg-theme-link-color: #64ffda;
-    --tg-theme-button-color: #172a45;
-    --tg-theme-button-text-color: #ffffff;
-    --card-bg-color: #112240;
-    --card-border-color: #1e3a5f;
-    --hover-bg-color: #1e3a5f;
-    --accent-color: #64ffda;
-    --accent-color-light: #64ffda99;
-    --tg-theme-secondary-bg-color: #1e3a5f;
+    --primary-color: #1a1a1a;
+    --secondary-color: #2d2d2d;
+    --text-color: #ffffff;
+    --accent-color: #007AFF;
+    --border-color: #3d3d3d;
 }
 
 * {
@@ -1007,8 +1000,8 @@ header {
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, var(--tg-theme-bg-color), #1e293b);
-    color: var(--tg-theme-text-color);
+    background: var(--primary-color);
+    color: var(--text-color);
     min-height: 100vh;
     padding-bottom: env(safe-area-inset-bottom);
     line-height: 1.5;
