@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAPE ROOM | ELFBAR WROCLAW - Админ панель</title>
+    <title>VAPE ROOM | ELFBAR ВРОЦЛАВ - Админ панель</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
@@ -159,13 +159,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>VAPE ROOM | ELFBAR WROCLAW - Админ панель</h1>
+            <h1>VAPE ROOM | ELFBAR ВРОЦЛАВ - Админ панель</h1>
         </div>
 
         <div id="authForm" class="auth-form">
             <h2>Авторизация</h2>
             <div class="form-group">
-                <label for="token">GitHub Personal Access Token</label>
+                <label for="token">GitHub Персональный Токен Доступа</label>
                 <input type="password" id="token" required>
                 <p class="error-message" id="authError" style="display: none;"></p>
             </div>
@@ -182,16 +182,20 @@
                         <input type="text" id="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="price">Цена (zł)</label>
+                        <label for="price">Цена (руб)</label>
                         <input type="number" id="price" required>
                     </div>
                     <div class="form-group">
                         <label for="category">Категория</label>
                         <select id="category" required>
-                            <option value="Люди">Люди</option>
-                            <option value="Рудина">Рудина</option>
-                            <option value="Одноразки">Одноразки</option>
-                            <option value="Картриджи">Картриджи</option>
+                            <option value="murder-mystery-2">Murder Mystery 2</option>
+                            <option value="adopt-me">Adopt Me</option>
+                            <option value="blox-fruits">Blox Fruits</option>
+                            <option value="pets-go">Pets Go</option>
+                            <option value="pet-simulator-99">Pet Simulator 99</option>
+                            <option value="robux">Robux</option>
+                            <option value="promocodes">Promocodes</option>
+                            <option value="toilet-tower-defense">Toilet Tower Defense</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -346,7 +350,7 @@
                          onerror="this.src='images/placeholder.svg'">
                     <div class="product-info">
                         <h3>${product.name}</h3>
-                        <p>Цена: ${product.price} zł</p>
+                        <p>Цена: ${product.price} руб</p>
                         <p>Категория: ${product.category}</p>
                         <label>
                             <input type="checkbox" class="stock-checkbox" data-id="${product.id}" ${product.in_stock ? 'checked' : ''}>

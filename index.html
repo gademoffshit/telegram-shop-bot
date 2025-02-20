@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAPE ROOM | ELFBAR WROCLAW</title>
+    <title>VAPE ROOM | ELFBAR ВРОЦЛАВ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="dark-theme">
     <div class="app">
-        <header>
+        <header class="header-blur">
             <div class="header-content">
                 <button class="nav-btn home-btn" id="homeButton">
                     <i class="material-icons">home</i>
                 </button>
                 <div class="search-container">
                     <i class="material-icons search-icon">search</i>
-                    <input type="search" class="search-input" placeholder="Пошук товарів...">
+                    <input type="search" class="search-input" placeholder="Поиск товаров...">
                 </div>
                 <button class="nav-btn cart-btn" id="cartButton">
                     <i class="material-icons">shopping_cart</i>
@@ -27,32 +27,40 @@
             </div>
         </header>
 
-        <div class="hero-section">
-            <div class="hero-content">
-                <h1>VAPE ROOM</h1>
-                <h2>ELFBAR WROCLAW</h2>
-                <p>Ласкаво просимо до нашого магазину</p>
-            </div>
-        </div>
-
         <nav class="categories-nav">
             <div class="categories-scroll">
                 <div class="categories">
-                    <button class="category-btn" data-category="liquid">
-                        <i class="material-icons">opacity</i>
-                        <span>Рідина</span>
+                    <button class="category-btn active" data-category="murder-mystery-2">
+                        <i class="material-icons">gamepad</i>
+                        <span>Murder Mystery 2</span>
                     </button>
-                    <button class="category-btn" data-category="disposable">
-                        <i class="material-icons">smoking_rooms</i>
-                        <span>Одноразки</span>
+                    <button class="category-btn" data-category="adopt-me">
+                        <i class="material-icons">child_care</i>
+                        <span>Adopt Me</span>
                     </button>
-                    <button class="category-btn" data-category="cartridge">
-                        <i class="material-icons">battery_charging_full</i>
-                        <span>Картриджі</span>
+                    <button class="category-btn" data-category="blox-fruits">
+                        <i class="material-icons">local_pizza</i>
+                        <span>Blox Fruits</span>
                     </button>
-                    <button class="category-btn" data-category="accessories">
-                        <i class="material-icons">build</i>
-                        <span>Аксесуари</span>
+                    <button class="category-btn" data-category="pets-go">
+                        <i class="material-icons">pets</i>
+                        <span>Pets Go</span>
+                    </button>
+                    <button class="category-btn" data-category="pet-simulator-99">
+                        <i class="material-icons">pets</i>
+                        <span>Pet Simulator 99</span>
+                    </button>
+                    <button class="category-btn" data-category="robux">
+                        <i class="material-icons">attach_money</i>
+                        <span>Робуксы</span>
+                    </button>
+                    <button class="category-btn" data-category="promocodes">
+                        <i class="material-icons">card_giftcard</i>
+                        <span>Промокоды</span>
+                    </button>
+                    <button class="category-btn" data-category="toilet-tower-defense">
+                        <i class="material-icons">wc</i>
+                        <span>Toilet Tower Defense</span>
                     </button>
                 </div>
             </div>
@@ -61,11 +69,11 @@
         <div class="content-section">
             <div class="filters-bar">
                 <div class="active-filters">
-                    <span class="filter-label">Сортування:</span>
+                    <span class="filter-label">Сортировка:</span>
                     <select class="sort-select">
-                        <option value="popular">За популярністю</option>
-                        <option value="price_asc">Від дешевих до дорогих</option>
-                        <option value="price_desc">Від дорогих до дешевих</option>
+                        <option value="popular">По популярности</option>
+                        <option value="price_asc">От дешевых к дорогим</option>
+                        <option value="price_desc">От дорогих к дешевым</option>
                     </select>
                 </div>
                 <button class="view-toggle">
@@ -84,6 +92,7 @@
         <span class="notification-message"></span>
     </div>
 
+    <script src="wheel.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

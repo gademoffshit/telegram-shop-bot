@@ -1,54 +1,63 @@
-import asyncio
-import logging
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
-from aiogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    WebAppInfo
-)
-from dotenv import load_dotenv
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
+from datetime import datetime
+import logging
 import os
-import uuid
 import json
+from dotenv import load_dotenv
+import asyncio
+import uuid
 
 # Загрузка переменных окружения
 load_dotenv()
 
 # Инициализация бота и диспетчера
 bot = Bot(token='5037002755:AAH0SdUBgoGG27O3Gm6BS31cOKE286e3Oqo')
-dp = Dispatcher()
+storage = MemoryStorage()
+dp = Dispatcher(storage=storage)
 
 # URL вашего веб-приложения
 WEBAPP_URL = "https://gademoffshit.github.io/telegram-shop-bot/"
 
-# Словарь для хранения данных заказов
-orders_data = {}
+# ID администратора
+ADMIN_ID = 7356161144
 
-# Словарь для хранения временных данных заказов
+# Словари для хранения данных
+orders_data = {}
 pending_orders = {}
+admin_referral_stats = {}
+admin_ref_usernames = {}
+
+# Состояния
+class PaymentStates(StatesGroup):
+    waiting_for_receipt = State()
+
+# Создаем папку для квитанций если её нет
+if not os.path.exists('receipts'):
+    os.makedirs('receipts')
 
 def get_main_keyboard():
     """Создаем основную клавиатуру"""
     buttons = [
-        [{"text": "Перейти до магазину", "web_app": {"url": WEBAPP_URL}}],
-        [{"text": "Чат з оператором 💬", "callback_data": "operator_chat"}],
-        [{"text": "Допомога", "callback_data": "help"}],
-        [{"text": "Про нас", "callback_data": "about_us"}]
+        [{"text": "🛍 Сделать заказ", "web_app": {"url": WEBAPP_URL}}],
+        [{"text": "❓ Помощь", "callback_data": "help"}],
+        [{"text": "ℹ️ О нас", "callback_data": "about_us"}]
     ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
+    return types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def get_payment_keyboard():
-    """Создание клавиатуры для выбора способа оплаты"""
+    """Создаем клавиатуру для выбора способа оплаты"""
     buttons = [
         [{"text": "Monobank", "callback_data": "pay_mono"}],
         [{"text": "Blik", "callback_data": "pay_blik"}],
         [{"text": "Crypto trc-20", "callback_data": "pay_crypto"}],
-        [{"text": "Назад", "callback_data": "back_to_order"}]
+        [{"text": "Отправить квитанцию", "callback_data": "send_receipt"}],
+        [{"text": "◀️ Назад", "callback_data": "back_to_order"}]
     ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
+    return types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def get_admin_keyboard():
     """Создание клавиатуры админ-панели"""
@@ -62,8 +71,7 @@ def get_admin_keyboard():
             {"text": "Отправленные", "callback_data": "shipped_orders"}
         ]
     ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
+    return types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def get_order_keyboard(order_id: str):
     """Создание клавиатуры для конкретного заказа"""
@@ -74,13 +82,11 @@ def get_order_keyboard(order_id: str):
         ],
         [{"text": "🔙 Назад", "callback_data": "back_to_orders"}]
     ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
+    return types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def generate_order_id():
     """Функция для генерации уникального номера заказа"""
     return str(uuid.uuid4())
-
 
 def create_order(user_id, order_data):
     """Функция для создания заказа"""
@@ -100,31 +106,65 @@ def create_order(user_id, order_data):
     orders_data[order_id] = order
     return order_id
 
-
 def send_order_confirmation_to_user(user_id, order_id):
     """Функция для отправки сообщения пользователю"""
     message = f"✅ Дякуємо за замовлення!\n\nМи отримали підтвердження оплати і скоро відправимо ваше замовлення.\nОчікуйте повідомлення з номером відстеження.\nВаш номер замовлення: {order_id}"
     bot.send_message(chat_id=user_id, text=message)
 
-
+# Основные обработчики
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    """Обработчик команды /start"""
     await message.answer(
-        "Ласкаво просимо до магазину VAPE ROOM | ELFBAR WROCLAW!\n\n"
-        "Тут ви можете зробити замовлення та відстежувати його статус.",
+        "👋 Добро пожаловать в наш магазин!\n"
+        "Выберите действие:",
         reply_markup=get_main_keyboard()
     )
 
-
 @dp.message(Command("admin"))
-async def admin_command(message: types.Message):
-    """Обработчик команды /admin"""
-    if str(message.from_user.id) == '7356161144':  # ID администратора
-        await message.answer("Панель адміністратора:", reply_markup=get_admin_keyboard())
+async def cmd_admin(message: types.Message):
+    if str(message.from_user.id) == str(ADMIN_ID):
+        await message.answer(
+            "🔐 Панель администратора",
+            reply_markup=get_admin_keyboard()
+        )
     else:
-        await message.answer("У вас немає доступу до панелі адміністратора.")
+        await message.answer("⛔️ У вас нет доступа к панели администратора")
 
+@dp.callback_query(lambda c: c.data == "help")
+async def process_help(callback: types.CallbackQuery):
+    help_text = (
+        "🛍 <b>Как сделать заказ:</b>\n\n"
+        "1. Нажмите кнопку 'Сделать заказ'\n"
+        "2. Выберите товары\n"
+        "3. Оформите заказ\n"
+        "4. Выберите способ оплаты\n"
+        "5. Загрузите квитанцию\n\n"
+        "❓ Есть вопросы? Пишите: @odnorazki_wrot"
+    )
+    await callback.message.edit_text(
+        help_text,
+        parse_mode="HTML",
+        reply_markup=get_main_keyboard()
+    )
+    await callback.answer()
+
+@dp.callback_query(lambda c: c.data == "about_us")
+async def process_about(callback: types.CallbackQuery):
+    about_text = (
+        "🏪 <b>О нашем магазине</b>\n\n"
+        "Мы предлагаем широкий ассортимент товаров высокого качества.\n\n"
+        "✅ Быстрая доставка\n"
+        "✅ Надежная упаковка\n"
+        "✅ Гарантия качества\n"
+        "✅ Поддержка 24/7\n\n"
+        "📞 Контакты: @odnorazki_wro"
+    )
+    await callback.message.edit_text(
+        about_text,
+        parse_mode="HTML",
+        reply_markup=get_main_keyboard()
+    )
+    await callback.answer()
 
 @dp.callback_query(lambda c: c.data == "confirm_order")
 async def process_confirm_order(callback: types.CallbackQuery):
@@ -223,7 +263,6 @@ async def process_confirm_order(callback: types.CallbackQuery):
         print(f"Message text: {message_text if 'message_text' in locals() else 'Not available'}")
         await callback.message.answer(f"Помилка обробки даних замовлення: {str(e)}")
 
-
 @dp.callback_query(lambda c: c.data.startswith("pay_"))
 async def process_payment(callback: types.CallbackQuery):
     """Обработчик выбора способа оплаты"""
@@ -238,7 +277,7 @@ async def process_payment(callback: types.CallbackQuery):
         [{"text": "✅ Я сплатив", "callback_data": "payment_done"}],
         [{"text": "Назад", "callback_data": "back_to_payment"}]
     ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await callback.message.edit_text(
         f"Реквізити для оплати:\n\n{payment_info[payment_method]}\n\n"
@@ -247,40 +286,29 @@ async def process_payment(callback: types.CallbackQuery):
     )
     await callback.answer()
 
-
 @dp.callback_query(lambda c: c.data == "payment_done")
 async def process_payment_confirmation(callback: types.CallbackQuery):
     """Обработчик подтверждения оплаты"""
-    for order_id, order in orders_data.items():
-        if order["user_id"] == callback.from_user.id and order["status"] == "Ожидает оплаты":
-            order["status"] = "Оплачен"
-            await bot.send_message(
-                chat_id=callback.from_user.id,
-                text=f"Ваш заказ с номером {order_id} на ожиданий!"
-            )
-            break
-    buttons = [
-        [{"text": "До головного меню", "callback_data": "main_menu"}]
-    ]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    # Запрашиваем квитанцию
     await callback.message.edit_text(
-        "✅ Дякуємо за замовлення!\n\n"
-        "Ми отримали оплату і незабаром ваше замовлення буде відправлено.\n"
-        "Очікуйте повідомлення з номером відстеження.",
-        reply_markup=keyboard
+        "❗️ Для подтверждения оплаты необходимо прикрепить квитанцию.\n\n"
+        "📎 Пожалуйста, отправьте фото или файл квитанции об оплате.\n"
+        "✅ Поддерживаемые форматы: jpg, png, pdf",
+        reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+            [{"text": "📤 Отправить квитанцию", "callback_data": "send_receipt"}],
+            [{"text": "◀️ Назад к способам оплаты", "callback_data": "back_to_payment"}]
+        ])
     )
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data == "back_to_payment")
 async def back_to_payment(callback: types.CallbackQuery):
     """Обработчик кнопки возврата к выбору способа оплаты"""
     await callback.message.edit_text(
-        "Оберіть спосіб оплати:",
+        "Выберите способ оплаты:",
         reply_markup=get_payment_keyboard()
     )
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data == "operator_chat")
 async def operator_chat(callback: types.CallbackQuery):
@@ -290,7 +318,6 @@ async def operator_chat(callback: types.CallbackQuery):
         "Пожалуйста, опишите ваш вопрос."
     )
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data == "help")
 async def help_handler(callback: types.CallbackQuery):
@@ -305,7 +332,6 @@ async def help_handler(callback: types.CallbackQuery):
     )
     await callback.message.answer(help_text)
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data == "about_us")
 async def send_about_us(callback: types.CallbackQuery):
@@ -325,11 +351,10 @@ async def send_about_us(callback: types.CallbackQuery):
     )
     
     buttons = [[{"text": "🛍 Зробити замовлення", "web_app": {"url": WEBAPP_URL}}]]
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
     
     await callback.message.answer(about_text, reply_markup=keyboard)
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data == "main_menu")
 async def process_main_menu(callback: types.CallbackQuery):
@@ -344,7 +369,6 @@ async def process_main_menu(callback: types.CallbackQuery):
         reply_markup=get_main_keyboard()
     )
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data in ["all_orders", "waiting_orders", "paid_orders", "shipped_orders"])
 async def process_order_filter(callback: types.CallbackQuery):
@@ -383,14 +407,13 @@ async def process_order_filter(callback: types.CallbackQuery):
         {"text": "🔙 Назад", "callback_data": "main_menu"}
     ])
     
-    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
     
     if not filtered_orders:
         orders_list += "Нет активных заказов"
     
     await callback.message.answer(orders_list, reply_markup=keyboard)
     await callback.answer()
-
 
 @dp.callback_query(lambda c: c.data.startswith('view_order_'))
 async def process_view_order(callback: types.CallbackQuery):
@@ -426,7 +449,6 @@ async def process_view_order(callback: types.CallbackQuery):
         )
     await callback.answer()
 
-
 @dp.callback_query(lambda c: c.data.startswith(('accept_', 'reject_')))
 async def process_order_action(callback: types.CallbackQuery):
     """Обработчик принятия/отклонения заказа"""
@@ -456,7 +478,7 @@ async def process_order_action(callback: types.CallbackQuery):
             {"text": "🔙 К списку заказов", "callback_data": "all_orders"},
             {"text": "🏠 В главное меню", "callback_data": "main_menu"}
         ]]
-        keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+        keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
         
         await callback.message.answer(
             f"Заказ #{order_id} {order['status'].lower()}",
@@ -464,12 +486,122 @@ async def process_order_action(callback: types.CallbackQuery):
         )
     await callback.answer()
 
+@dp.callback_query(lambda c: c.data == 'send_receipt')
+async def request_receipt(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.set_state(PaymentStates.waiting_for_receipt)
+    await callback_query.message.edit_text(
+        "📄 Пожалуйста, отправьте фото или файл квитанции об оплате.\n"
+        "❗️ Поддерживаемые форматы: jpg, png, pdf\n\n"
+        "Для отмены нажмите /cancel"
+    )
 
+@dp.message(lambda message: message.content_type in ['document', 'photo'], PaymentStates.waiting_for_receipt)
+async def handle_receipt(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    
+    try:
+        # Создаем папку для пользователя если её нет
+        user_folder = f'receipts/{user_id}'
+        if not os.path.exists(user_folder):
+            os.makedirs(user_folder)
+        
+        # Генерируем имя файла
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        if message.document:
+            # Проверяем расширение файла
+            file_ext = os.path.splitext(message.document.file_name)[1].lower()
+            if file_ext not in ['.jpg', '.jpeg', '.png', '.pdf']:
+                await message.reply(
+                    "❌ Неподдерживаемый формат файла.\n"
+                    "Пожалуйста, отправьте файл в формате jpg, png или pdf."
+                )
+                return
+            
+            # Сохраняем документ
+            file_id = message.document.file_id
+            file = await bot.get_file(file_id)
+            file_path = f"{user_folder}/{timestamp}{file_ext}"
+            await bot.download_file(file.file_path, file_path)
+            
+        elif message.photo:
+            # Берем фото максимального размера
+            photo = message.photo[-1]
+            file_id = photo.file_id
+            file = await bot.get_file(file_id)
+            file_path = f"{user_folder}/{timestamp}.jpg"
+            await bot.download_file(file.file_path, file_path)
+        
+        # Отправляем уведомление администратору
+        admin_message = (
+            f"📥 Получена новая квитанция об оплате\n\n"
+            f"👤 От пользователя: {message.from_user.username or message.from_user.id}\n"
+            f"🕒 Время: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"
+        )
+        
+        # Создаем клавиатуру для админа
+        keyboard = types.InlineKeyboardMarkup(inline_keyboard=[[
+            types.InlineKeyboardButton(text="✅ Подтвердить", callback_data=f"approve_payment_{user_id}"),
+            types.InlineKeyboardButton(text="❌ Отклонить", callback_data=f"reject_payment_{user_id}")
+        ]])
+        
+        # Пересылаем файл админу
+        if message.document:
+            await bot.send_document(ADMIN_ID, message.document.file_id, caption=admin_message, reply_markup=keyboard)
+        else:
+            await bot.send_photo(ADMIN_ID, photo.file_id, caption=admin_message, reply_markup=keyboard)
+        
+        # Отправляем подтверждение пользователю
+        await message.reply(
+            "✅ Квитанция успешно отправлена!\n"
+            "Ожидайте подтверждения от администратора.\n\n"
+            "После проверки вы получите уведомление о статусе оплаты."
+        )
+        
+        await state.clear()
+        
+    except Exception as e:
+        logging.error(f"Error handling receipt: {e}")
+        await message.reply(
+            "❌ Произошла ошибка при обработке файла.\n"
+            "Пожалуйста, попробуйте еще раз или обратитесь к администратору."
+        )
+        await state.clear()
+
+@dp.callback_query(lambda c: c.data.startswith('approve_payment_'))
+async def approve_payment(callback_query: types.CallbackQuery):
+    user_id = int(callback_query.data.split('_')[2])
+    
+    await bot.send_message(
+        user_id,
+        "✅ Ваш платеж подтвержден!\n"
+        "Спасибо за покупку!"
+    )
+    
+    await callback_query.message.edit_caption(
+        callback_query.message.caption + "\n\n✅ Платеж подтвержден",
+        reply_markup=None
+    )
+
+@dp.callback_query(lambda c: c.data.startswith('reject_payment_'))
+async def reject_payment(callback_query: types.CallbackQuery):
+    user_id = int(callback_query.data.split('_')[2])
+    
+    await bot.send_message(
+        user_id,
+        "❌ Ваш платеж отклонен.\n"
+        "Пожалуйста, проверьте правильность оплаты и отправьте квитанцию повторно."
+    )
+    
+    await callback_query.message.edit_caption(
+        callback_query.message.caption + "\n\n❌ Платеж отклонен",
+        reply_markup=None
+    )
+
+# Запуск бота
 async def main():
-    """Запуск бота"""
-    logging.basicConfig(level=logging.INFO)
     await dp.start_polling(bot)
 
-
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())

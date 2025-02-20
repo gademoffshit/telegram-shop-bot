@@ -106,7 +106,8 @@
     right: 16px;
     padding: 16px;
     background: var(--accent-color);
-    color: white;
+    color: var(--tg-theme-bg-color);
+    font-weight: 600;
     border: none;
     font-size: 16px;
     font-weight: 500;
@@ -201,9 +202,9 @@ header {
 }
 
 .search-input:focus {
-    border-color: var(--accent-color);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-color-light);
 }
 
 .cart-counter {
@@ -221,7 +222,7 @@ header {
 .hero-section {
     padding: 32px 16px;
     text-align: center;
-    background: linear-gradient(to right, var(--accent-color), var(--category-color-2));
+    background: linear-gradient(to right, var(--accent-color), var(--accent-color));
     border-radius: 24px;
     margin: 16px 0;
 }
@@ -268,31 +269,28 @@ header {
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    border-radius: 16px;
-    border: none;
     background: var(--card-bg-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 12px;
     color: var(--tg-theme-text-color);
     font-size: 14px;
-    font-weight: 500;
     white-space: nowrap;
-    cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid var(--card-border-color);
-}
-
-.category-btn i {
-    font-size: 20px;
 }
 
 .category-btn:hover {
     background: var(--hover-bg-color);
-    transform: translateY(-1px);
+    border-color: var(--accent-color);
 }
 
 .category-btn.active {
     background: var(--accent-color);
     border-color: var(--accent-color);
-    color: white;
+    color: var(--tg-theme-bg-color);
+}
+
+.category-btn i {
+    font-size: 20px;
 }
 
 .filters-bar {
@@ -356,17 +354,15 @@ header {
 .product-card {
     background: var(--card-bg-color);
     border: 1px solid var(--card-border-color);
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    max-height: 280px;
+    transition: all 0.2s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.1);
 }
 
 .product-image {
@@ -795,22 +791,190 @@ header {
     background-color: #45a049;
 }
 
+/* Account styles */
+.account-container {
+    padding: 20px;
+    background: var(--tg-theme-bg-color);
+    min-height: 100vh;
+}
+
+.account-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--card-bg-color);
+    border-radius: 16px;
+    border: 1px solid var(--card-border-color);
+}
+
+.account-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--hover-bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-avatar i {
+    font-size: 32px;
+    color: var(--accent-color);
+}
+
+.account-header h2 {
+    margin: 0;
+    color: var(--tg-theme-text-color);
+    font-size: 24px;
+}
+
+.account-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.account-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--card-bg-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.account-menu-item:hover {
+    background: var(--hover-bg-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.account-menu-item i {
+    font-size: 24px;
+    color: var(--accent-color);
+    margin-right: 16px;
+}
+
+.account-menu-item span {
+    flex: 1;
+    color: var(--tg-theme-text-color);
+    font-size: 16px;
+}
+
+.account-menu-item .material-icons:last-child {
+    color: var(--tg-theme-hint-color);
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg-color);
+    border-top: 1px solid var(--card-border-color);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    color: var(--tg-theme-hint-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-item.active {
+    color: var(--accent-color);
+}
+
+.nav-item i {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.nav-item span {
+    font-size: 12px;
+}
+
+/* Стили для колеса фортуны */
+.wheel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 100vh;
+    background: var(--tg-theme-bg-color);
+}
+
+#wheel-app {
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.marker {
+    position: absolute;
+    width: 60px;
+    left: 172px;
+    top: -20px;
+    z-index: 2;
+}
+
+.wheel {
+    width: 100%;
+    height: 100%;
+}
+
+.button {
+    display: block;
+    width: 250px;
+    margin: 40px auto;
+    cursor: pointer;
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+.blur {
+    animation: blur 10s;
+}
+
+@keyframes blur {
+    0% {
+        filter: blur(1.5px);
+    }
+    80% {
+        filter: blur(1.5px);
+    }
+    100% {
+        filter: blur(0px);
+    }
+}
+
 :root {
-    --tg-theme-bg-color: #111827;
+    --tg-theme-bg-color: #0a192f;
     --tg-theme-text-color: #ffffff;
-    --tg-theme-hint-color: #9ca3af;
-    --tg-theme-link-color: #60a5fa;
-    --tg-theme-button-color: #3b82f6;
+    --tg-theme-hint-color: #8892b0;
+    --tg-theme-link-color: #64ffda;
+    --tg-theme-button-color: #172a45;
     --tg-theme-button-text-color: #ffffff;
-    --accent-color: #8b5cf6;
-    --accent-color-light: #a78bfa;
-    --category-color-1: #8b5cf6;
-    --category-color-2: #ec4899;
-    --category-color-3: #f43f5e;
-    --category-color-4: #3b82f6;
-    --card-bg-color: rgba(31, 41, 55, 0.7);
-    --card-border-color: rgba(75, 85, 99, 0.3);
-    --hover-bg-color: rgba(55, 65, 81, 0.7);
+    --card-bg-color: #112240;
+    --card-border-color: #1e3a5f;
+    --hover-bg-color: #1e3a5f;
+    --accent-color: #64ffda;
+    --accent-color-light: #64ffda99;
 }
 
 * {
