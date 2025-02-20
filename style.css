@@ -917,16 +917,16 @@ header {
 }
 
 #wheel-app {
-    width: 400px;
-    height: 400px;
+    width: 300px;
+    height: 300px;
     margin: 0 auto;
     position: relative;
 }
 
 .marker {
     position: absolute;
-    width: 60px;
-    left: 172px;
+    width: 40px;
+    left: 132px;
     top: -20px;
     z-index: 2;
 }
@@ -938,7 +938,7 @@ header {
 
 .button {
     display: block;
-    width: 250px;
+    width: 200px;
     margin: 40px auto;
     cursor: pointer;
 }
