@@ -111,7 +111,7 @@ function handleCategoryClick(category) {
     currentCategory = category;
     showHome();
     filterAndDisplayProducts();
-    showNotification(`Selected category: ${category}`);
+    showNotification(`Выбрана категория: ${category}`);
 }
 
 // Функция для фильтрации и отображения товаров
@@ -175,7 +175,7 @@ function displayProducts(products) {
     if (!products || products.length === 0) {
         const noProductsElement = document.createElement('div');
         noProductsElement.className = 'no-products';
-        noProductsElement.textContent = 'Nothing found';
+        noProductsElement.textContent = 'Ничего не найдено';
         productsGrid.appendChild(noProductsElement);
         return;
     }
@@ -214,7 +214,7 @@ function showCart() {
                 <h1>VAPE ROOM | ELFBAR WROCLAW</h1>
             </div>
             <div class="cart-empty">
-                <p>Your cart is empty</p>
+                <p>Ваша корзина пуста</p>
             </div>
         `;
         
@@ -250,7 +250,7 @@ function showCart() {
                 <img src="${item.image}" alt="${item.name}" class="cart-item-image">
                 <div class="cart-item-info">
                     <h3 class="cart-item-title">${item.name}</h3>
-                    <p class="cart-item-price">Retail price ${item.price}руб</p>
+                    <p class="cart-item-price">Розничная цена ${item.price}руб</p>
                     <div class="cart-item-quantity">
                         <button class="quantity-btn minus" data-id="${item.id}">-</button>
                         <span>${item.quantity}</span>
@@ -265,11 +265,11 @@ function showCart() {
         </div>
         <div class="cart-total">
             <div class="total-row">
-                <span>Total ${total.toFixed(2)} руб</span>
+                <span>Итого ${total.toFixed(2)} руб</span>
             </div>
         </div>
         <button class="checkout-button" onclick="checkout()">
-            PLACE ORDER
+            Оформить заказ
         </button>
     `;
     
@@ -314,7 +314,7 @@ function showCart() {
 // Добавление в корзину
 function addToCart(product) {
     if (!product.in_stock) {
-        alert('Sorry, this product is currently unavailable.');
+        alert('Извините, этот товар временно недоступен.');
         return;
     }
     
@@ -326,7 +326,7 @@ function addToCart(product) {
     }
     saveCart();
     updateCartCounter();
-    showNotification('Product added to cart');
+    showNotification('Товар добавлен в корзину');
     showCart();
 }
 
@@ -360,33 +360,33 @@ function checkout() {
             <button class="back-button">
                 <i class="material-icons">arrow_back</i>
             </button>
-            <h1>PLACE ORDER</h1>
+            <h1>Оформление заказа</h1>
         </div>
         
-        <h1>PLACE ORDER</h1>
+        <h1>Оформление заказа</h1>
         
         <div class="form-section">
             <div class="section-header">
                 <div class="section-number">1</div>
-                <h2>Your contact details</h2>
+                <h2>Контактная информация</h2>
             </div>
             
             <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" placeholder="Enter your name">
+                <label for="name">Имя</label>
+                <input type="text" id="name" placeholder="Введите имя">
                 <span class="error-message" id="nameError"></span>
             </div>
             
             <div class="form-group">
-                <label for="surname">Surname</label>
-                <input type="text" id="surname" placeholder="Enter your surname">
+                <label for="surname">Фамилия</label>
+                <input type="text" id="surname" placeholder="Введите фамилию">
                 <span class="error-message" id="surnameError"></span>
             </div>
             
             <div class="form-group">
-                <label for="telegram">Your Telegram username</label>
+                <label for="telegram">Ваш Telegram</label>
                 <input type="text" id="telegram" placeholder="@username">
-                <span class="helper-text">So the manager can contact you</span>
+                <span class="helper-text">Чтобы менеджер мог с вами связаться</span>
                 <span class="error-message" id="telegramError"></span>
             </div>
         </div>
@@ -396,21 +396,21 @@ function checkout() {
 
             
             <div class="form-group">
-                <label for="promo">Promo code</label>
-                <input type="text" id="promo" placeholder="Enter promo code">
+                <label for="promo">Промокод</label>
+                <input type="text" id="promo" placeholder="Введите промокод">
             </div>
         </div>
         
         <div class="form-section">
             <div class="section-header">
                 <div class="section-number">3</div>
-                <h2>Total amount</h2>
+                <h2>Итого</h2>
             </div>
             <p class="total-amount">${total.toFixed(2)} руб</p>
         </div>
         
         <button class="checkout-form-button" onclick="validateAndProceed()">
-            PLACE ORDER
+            Оформить заказ
         </button>
     `;
     
@@ -442,7 +442,7 @@ function validateAndProceed() {
     inputs.forEach(input => {
         let valid = true;
         if (input.id === 'name' || input.id === 'surname') {
-            valid = /^[A-Za-z]+$/.test(input.value);
+            valid = /^[А-Яа-яA-Za-z]+$/.test(input.value);
         } else if (input.id === 'telegram') {
             valid = input.value.trim() !== '';
         }
@@ -460,7 +460,7 @@ function validateAndProceed() {
         sendOrderDetailsToAdmin();
         sendOrderConfirmationToUser(getOrderData());
     } else {
-        showNotification('Please fill in all required fields correctly.');
+        showNotification('Пожалуйста, заполните все обязательные поля правильно.');
     }
 }
 
@@ -472,12 +472,12 @@ function getUserDetails() {
         telegram: user ? user.username : '',
     };
 
-    console.log('Received user details:', userDetails);
+    console.log('Получены данные пользователя:', userDetails);
 
     // Check if all fields are filled
     for (const [key, value] of Object.entries(userDetails)) {
         if (!value && key !== 'telegram') { // telegram can be empty
-            console.error(`Missing value for ${key}`);
+            console.error(`Отсутствует значение для ${key}`);
             return null;
         }
     }
@@ -488,7 +488,7 @@ function getUserDetails() {
 function getOrderData() {
     const userDetails = getUserDetails();
     if (!userDetails) {
-        console.error('Order data not found');
+        console.error('Данные заказа не найдены');
         return null;
     }
 
@@ -504,8 +504,8 @@ function getOrderData() {
 function sendOrderDetailsToAdmin() {
     const orderData = getOrderData();
     if (!orderData) {
-        console.error('Order data not found');
-        showNotification('An error occurred while sending the order. Please try again.');
+        console.error('Данные заказа не найдены');
+        showNotification('Произошла ошибка при отправке заказа. Пожалуйста, попробуйте еще раз.');
         return;
     }
 
@@ -513,15 +513,15 @@ function sendOrderDetailsToAdmin() {
     const botToken = '5037002755:AAH0SdUBgoGG27O3Gm6BS31cOKE286e3Oqo';
     
     // Create readable text without JSON tags
-    const humanReadableText = `🆕 New order!\n\n` +
-        `📋 Order details:\n` +
-        `👤 Name: ${orderData.name}\n` +
-        `👥 Surname: ${orderData.surname}\n` +
+    const humanReadableText = `🆕 Новый заказ!\n\n` +
+        `📋 Данные заказа:\n` +
+        `👤 Имя: ${orderData.name}\n` +
+        `👥 Фамилия: ${orderData.surname}\n` +
         `📱 Telegram: @${orderData.telegram}\n\n` +
-        `🛍️ Products:\n${orderData.items.map(item => 
-            `• ${item.name} - ${item.quantity}pcs x ${item.price} руб`
+        `🛍️ Товары:\n${orderData.items.map(item => 
+            `• ${item.name} - ${item.quantity}шт. x ${item.price} руб`
         ).join('\n')}\n\n` +
-        `💰 Total: ${orderData.total} руб`;
+        `💰 Итого: ${orderData.total} руб`;
     
     const messageText = `${humanReadableText}`;
     
@@ -539,23 +539,23 @@ function sendOrderDetailsToAdmin() {
     .then(response => response.json())
     .then(data => {
         if (data.ok) {
-            console.log('Order details sent successfully');
+            console.log('Данные заказа отправлены успешно');
             // Send order confirmation to user
             sendOrderConfirmationToUser(orderData);
         } else {
-            console.error('Error sending order details:', data);
-            showNotification('An error occurred while sending the order. Please try again.');
+            console.error('Ошибка отправки данных заказа:', data);
+            showNotification('Произошла ошибка при отправке заказа. Пожалуйста, попробуйте еще раз.');
         }
     })
     .catch(error => {
-        console.error('Error sending order details:', error);
-        showNotification('An error occurred while sending the order. Please try again.');
+        console.error('Ошибка отправки данных заказа:', error);
+        showNotification('Произошла ошибка при отправке заказа. Пожалуйста, попробуйте еще раз.');
     });
 }
 
 function sendOrderConfirmationToUser(orderData) {
     if (!orderData) {
-        console.error('Order data not found for user confirmation');
+        console.error('Данные заказа не найдены для подтверждения пользователю');
         return;
     }
 
@@ -563,19 +563,19 @@ function sendOrderConfirmationToUser(orderData) {
     const userId = tg.initDataUnsafe?.user?.id;
 
     if (!userId) {
-        console.error('User ID not found');
+        console.error('ID пользователя не найден');
         return;
     }
 
-    const humanReadableText = `Your order:\n\n` +
-        `📋 Order details:\n` +
-        `👤 Name: ${orderData.name}\n` +
-        `👥 Surname: ${orderData.surname}\n` +
+    const humanReadableText = `Ваш заказ:\n\n` +
+        `📋 Данные заказа:\n` +
+        `👤 Имя: ${orderData.name}\n` +
+        `👥 Фамилия: ${orderData.surname}\n` +
         `📱 Telegram: @${orderData.telegram}\n\n` +
-        `🛍️ Products:\n${orderData.items.map(item => 
-            `• ${item.name} - ${item.quantity}pcs x ${item.price} руб`
+        `🛍️ Товары:\n${orderData.items.map(item => 
+            `• ${item.name} - ${item.quantity}шт. x ${item.price} руб`
         ).join('\n')}\n\n` +
-        `💰 Total: ${orderData.total} руб`;
+        `💰 Итого: ${orderData.total} руб`;
 
     const messageText = `${humanReadableText}`;
 
@@ -591,11 +591,11 @@ function sendOrderConfirmationToUser(orderData) {
             reply_markup: {
                 inline_keyboard: [
                     [{
-                        text: "✅ Confirm order ✅",
+                        text: "✅ Подтвердить заказ ✅",
                         callback_data: "confirm_order"
                     }],
                     [{
-                        text: "Back to main menu",
+                        text: "Вернуться в главное меню",
                         callback_data: "back_to_main"
                     }]
                 ]
@@ -605,18 +605,18 @@ function sendOrderConfirmationToUser(orderData) {
     .then(response => response.json())
     .then(data => {
         if (data.ok) {
-            console.log('Order confirmation sent successfully');
+            console.log('Подтверждение заказа отправлено успешно');
             // Send order details to admin
             sendOrderDetailsToAdmin();
             Telegram.WebApp.close();
         } else {
-            console.error('Error sending order confirmation:', data);
-            showNotification('An error occurred while sending the confirmation. Please try again.');
+            console.error('Ошибка отправки подтверждения заказа:', data);
+            showNotification('Произошла ошибка при отправке подтверждения. Пожалуйста, попробуйте еще раз.');
         }
     })
     .catch(error => {
-        console.error('Error sending order confirmation:', error);
-        showNotification('An error occurred while sending the confirmation. Please try again.');
+        console.error('Ошибка отправки подтверждения заказа:', error);
+        showNotification('Произошла ошибка при отправке подтверждения. Пожалуйста, попробуйте еще раз.');
     });
 }
 
@@ -650,27 +650,27 @@ function showProductDetails(product) {
             <button class="back-button" id="detailsBackButton">
                 <i class="material-icons">arrow_back</i>
             </button>
-            <h2>Details</h2>
+            <h2>Детали</h2>
         </div>
         <div class="product-details">
             <h1>${product.price} руб</h1>
             <h3>${product.name}</h3>
             <div class="availability ${product.inStock ? 'in-stock' : 'out-of-stock'}">
-                ${product.inStock ? 'In stock' : 'Out of stock'}
+                ${product.inStock ? 'В наличии' : 'Нет в наличии'}
             </div>
             <div class="product-characteristics">
-                <h4>Characteristics</h4>
+                <h4>Характеристики</h4>
                 <ul>
-                    <li>Volume: ${product.volume || 'N/A'}</li>
-                    <li>Strength: ${product.strength || 'N/A'}</li>
-                    <li>Manufacturer: ${product.manufacturer || 'N/A'}</li>
+                    <li>Объем: ${product.volume || 'Н/Д'}</li>
+                    <li>Сила: ${product.strength || 'Н/Д'}</li>
+                    <li>Производитель: ${product.manufacturer || 'Н/Д'}</li>
                 </ul>
             </div>
             <div class="product-description">
-                <h4>Description</h4>
-                <p>${product.description || 'Description not available'}</p>
+                <h4>Описание</h4>
+                <p>${product.description || 'Описание не доступно'}</p>
             </div>
-            <button class="add-to-cart-button">ADD TO CART</button>
+            <button class="add-to-cart-button">Добавить в корзину</button>
         </div>
     `;
     
@@ -688,7 +688,7 @@ function showProductDetails(product) {
     if (addToCartButton) {
         addToCartButton.onclick = () => {
             addToCart(product);
-            showNotification('Product added to cart');
+            showNotification('Товар добавлен в корзину');
         };
     }
 }
@@ -714,11 +714,11 @@ function showCatalog() {
                 <button class="back-button">
                     <i class="material-icons">arrow_back</i>
                 </button>
-                <h2>Filter</h2>
-                <button class="clear-button">Clear</button>
+                <h2>Фильтр</h2>
+                <button class="clear-button">Очистить</button>
             </div>
             <div class="catalog-section">
-                <h3>Choose category</h3>
+                <h3>Выберите категорию</h3>
                 <div class="category-list">
                     <div class="category-item" data-category="Murder Mystery 2">
                         <span>Murder Mystery 2</span>
@@ -743,8 +743,8 @@ function showCatalog() {
                 </div>
             </div>
             <button class="show-products-button">
-                Show
-                <span class="products-count">Found products: 130</span>
+                Показать
+                <span class="products-count">Найдено товаров: 130</span>
             </button>
         `;
         
@@ -768,7 +768,7 @@ function showCatalog() {
         if (clearButton) {
             clearButton.addEventListener('click', () => {
                 currentCategory = null;
-                showNotification('Filters cleared');
+                showNotification('Фильтры очищены');
                 showHome();
             });
         }
@@ -886,11 +886,11 @@ function handleCategoryClick(category) {
             <button class="back-button">
                 <i class="material-icons">arrow_back</i>
             </button>
-            <h1>Category: ${category}</h1>
+            <h1>Категория: ${category}</h1>
         </div>
         <div class="category-list">
             <div class="category-item" onclick="showCatalog()">
-                <span>All categories</span>
+                <span>Все категории</span>
                 <i class="material-icons">chevron_right</i>
             </div>
     `;
@@ -1105,22 +1105,22 @@ function showAccount() {
                 <div class="account-avatar">
                     <i class="material-icons">account_circle</i>
                 </div>
-                <h2>Account</h2>
+                <h2>Аккаунт</h2>
             </div>
             <div class="account-menu">
                 <div class="account-menu-item" data-action="orders">
                     <i class="material-icons">shopping_bag</i>
-                    <span>My orders</span>
+                    <span>Мои заказы</span>
                     <i class="material-icons">chevron_right</i>
                 </div>
                 <div class="account-menu-item" data-action="support">
                     <i class="material-icons">support_agent</i>
-                    <span>Support</span>
+                    <span>Поддержка</span>
                     <i class="material-icons">chevron_right</i>
                 </div>
                 <div class="account-menu-item" data-action="about">
                     <i class="material-icons">info</i>
-                    <span>About us</span>
+                    <span>О нас</span>
                     <i class="material-icons">chevron_right</i>
                 </div>
             </div>
@@ -1161,7 +1161,7 @@ function showAccount() {
 }
 
 function showOrders() {
-    showNotification('Order history is not available yet');
+    showNotification('История заказов недоступна');
 }
 
 // Создаем нижнюю навигацию
@@ -1270,7 +1270,7 @@ cart = loadCart();
 
 function addToCart(product) {
     if (!product.in_stock) {
-        alert('Sorry, this product is currently unavailable.');
+        alert('Извините, этот товар временно недоступен.');
         return;
     }
     
@@ -1282,7 +1282,7 @@ function addToCart(product) {
     }
     saveCart();
     updateCartCounter();
-    showNotification('Product added to cart');
+    showNotification('Товар добавлен в корзину');
     showCart();
 }
 
