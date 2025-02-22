@@ -360,10 +360,6 @@
                         <h3>${product.name}</h3>
                         <p>Цена: ${product.price} руб</p>
                         <p>Категория: ${product.category}</p>
-                        <label>
-                            <input type="checkbox" class="stock-checkbox" data-id="${product.id}" ${product.in_stock ? 'checked' : ''}>
-                            В наличии
-                        </label>
                         <div class="product-actions">
                             <button onclick="editProduct(${index})" class="edit-btn">Редактировать</button>
                             <button onclick="deleteProduct(${index})" class="delete-btn">Удалить</button>
@@ -371,29 +367,6 @@
                     </div>
                 </div>
             `).join('');
-
-            bindStockCheckboxes();
-        }
-
-        // Обработчик изменения статуса наличия
-        async function updateProductStock(productId, inStock) {
-            const products = await getProducts();
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                product.in_stock = inStock;
-                await saveProducts(products);
-            }
-        }
-
-        // Привязка обработчиков к чекбоксам
-        function bindStockCheckboxes() {
-            document.querySelectorAll('.stock-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', async function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    const inStock = this.checked;
-                    await updateProductStock(productId, inStock);
-                });
-            });
         }
 
         // Валидация формы
@@ -445,8 +418,6 @@
                 price: parseFloat(document.getElementById('price').value),
                 category: document.getElementById('category').value,
                 image: document.getElementById('image').value.trim(),
-                popularity: productId ? (products.find(p => p.id === parseInt(productId))?.popularity || 0) : 0,
-                in_stock: false
             };
 
             if (productId) {
