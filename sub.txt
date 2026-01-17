@@ -1,2 +1,2 @@
 vless://c693aca5-cede-4c8b-940b-85df034cdb73@150.241.64.4:33588?type=tcp&encryption=none&security=none#test_inbound_wd1j58hz-hvwiiia5
-vless://377b185c-f634-4dc6-a5cd-243d5d0bfbcd@144.31.126.240:31749?type=tcp&security=reality&pbk=ontGMj0_Svsap0qSpPumEs_d1je8bZRuBSYQlElm-mg&fp=chrome&sni=www.icloud.com&sid=59&spx=%2F&flow=xtls-rprx-vision#ShyneVPN | 🇩🇪 Германия (ХИТ ПРОДАЖ🔥)
+vless://c693aca5-cede-4c8b-940b-85df034cdb73@150.241.64.4:33588?type=tcp&encryption=none&security=none#test_inbound_wd1j58hz-hvwiiia5
